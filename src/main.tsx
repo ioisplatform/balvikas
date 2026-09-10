@@ -20,6 +20,7 @@ function renderApp() {
   }
 
   try {
+    (window as any).__IOIS_LOADED__ = true;
     const root = createRoot(rootElement);
     root.render(
       <StrictMode>
