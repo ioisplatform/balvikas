@@ -9,9 +9,34 @@
     <meta property="og:description" content="Class 1 to 5 interactive educational platform for Hindi, Math, English, Drawing, GK, Quizzes, and AI Chatbot with IOIS Unique ID registration and multi-device sync." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- GitHub Pages SPA Redirect Handler -->
+    <script>
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="iois-app-loader" style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 24px;">
+        <div style="width: 48px; height: 48px; border: 4px solid rgba(245, 158, 11, 0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
+        <div style="font-size: 22px; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">IOIS बाल विकास प्लेटफ़ॉर्म</div>
+        <div style="font-size: 14px; color: #94a3b8;">पोर्टल लोड हो रहा है, कृपया प्रतीक्षा करें...</div>
+        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+      </div>
+    </div>
+    <script>
+      setTimeout(function() {
+        var loader = document.getElementById('iois-app-loader');
+        if (loader) {
+          loader.innerHTML = '<div style="font-size: 32px; margin-bottom: 12px;">⚠️</div><div style="font-size: 18px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">लोड होने में समय लग रहा है</div><div style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; max-width: 320px;">कृपया पेज को रीफ्रेश करें अथवा कैश साफ़ करें।</div><button onclick="window.location.reload(true)" style="padding: 10px 20px; background: #f59e0b; color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer;">पुनः लोड करें (Reload)</button>';
+        }
+      }, 7000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
