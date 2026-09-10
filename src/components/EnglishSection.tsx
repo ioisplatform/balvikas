@@ -103,7 +103,7 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
     ctx.fillStyle = "#E2E8F0";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const charToDraw = tracingMode === "upper" ? selectedLetter.upper : selectedLetter.lower;
+    const charToDraw = tracingMode === "upper" ? (selectedLetter.upper || selectedLetter.letter) : (selectedLetter.lower || selectedLetter.lowercase);
     ctx.fillText(charToDraw, canvas.width / 2, canvas.height / 2 + 10);
   }, [selectedLetter, tracingMode, activeTab]);
 
@@ -255,7 +255,7 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
                           : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
                       }`}
                     >
-                      Capital {selectedLetter.upper}
+                      Capital {selectedLetter.upper || selectedLetter.letter}
                     </button>
                     <button
                       onClick={() => setTracingMode("lower")}
@@ -265,7 +265,7 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
                           : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
                       }`}
                     >
-                      Small {selectedLetter.lower}
+                      Small {selectedLetter.lower || selectedLetter.lowercase}
                     </button>
                   </div>
                   <span className="text-[11px] font-mono text-slate-400">
@@ -273,7 +273,7 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleSpeak(`${selectedLetter.upper} for ${selectedLetter.example1.word}`)}
+                  onClick={() => handleSpeak(`${selectedLetter.upper || selectedLetter.letter} for ${selectedLetter.example1.word}`)}
                   className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center gap-1 text-xs font-bold"
                 >
                   <Volume2 className="w-4 h-4" />
@@ -347,12 +347,13 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
               <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-900/80 rounded-2xl border border-blue-200 dark:border-blue-800 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 text-blue-900 dark:text-blue-300 font-semibold">
                   <CheckCircle className="w-4 h-4 text-blue-500" />
-                  <span>Finished practicing letter '{selectedLetter.upper}'?</span>
+                  <span>Finished practicing letter '{selectedLetter.upper || selectedLetter.letter}'?</span>
                 </div>
                 <button
                   onClick={() => {
-                    handleSpeak(`Great job! You mastered letter ${selectedLetter.upper}.`);
-                    onLetterLearned?.(selectedLetter.upper);
+                    const char = selectedLetter.upper || selectedLetter.letter;
+                    handleSpeak(`Great job! You mastered letter ${char}.`);
+                    onLetterLearned?.(char);
                   }}
                   className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm text-xs transition-transform active:scale-95"
                 >

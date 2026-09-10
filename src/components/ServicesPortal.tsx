@@ -44,12 +44,15 @@ export const ServicesPortal: React.FC<ServicesPortalProps> = ({
     setLoading(true);
     try {
       const res = await fetch("/api/services");
+      if (!res.ok) throw new Error("API not available");
       const data = await res.json();
-      if (data.services) {
+      if (data.services && Array.isArray(data.services) && data.services.length > 0) {
         setServices(data.services);
+        return;
       }
+      throw new Error("No services returned");
     } catch {
-      // Fallback local services
+      // Fallback local services (for static hosting like GitHub Pages)
       setServices([
         {
           id: "srv_bal_vikas",
@@ -82,6 +85,50 @@ export const ServicesPortal: React.FC<ServicesPortalProps> = ({
           icon: "Landmark",
           link: "https://biharbhumi.bihar.gov.in/",
           badge: "Direct",
+          active: true,
+        },
+        {
+          id: "srv_weather",
+          titleHi: "मौसम जानकारी एवं पूर्वानुमान",
+          titleEn: "Bihar Weather & Forecast",
+          category: "utilities",
+          description: "वर्तमान मौसम, वर्षा अलर्ट, तापमान एवं आगामी 7 दिनों का मौसम पूर्वानुमान।",
+          icon: "CloudSun",
+          link: "https://mausam.imd.gov.in/",
+          badge: "Live",
+          active: true,
+        },
+        {
+          id: "srv_tv",
+          titleHi: "डीडी बिहार एवं शैक्षिक टीवी चैनल",
+          titleEn: "DD Bihar & Educational Live TV",
+          category: "entertainment",
+          description: "दूरदर्शन बिहार, पीएम ई-विद्या एवं राष्ट्रीय शैक्षिक प्रसारण लाइव देखें।",
+          icon: "Tv",
+          link: "https://prasarbharati.gov.in/",
+          badge: "Free TV",
+          active: true,
+        },
+        {
+          id: "srv_calendar",
+          titleHi: "डिजिटल हिंदी पंचांग एवं अवकाश तालिका",
+          titleEn: "Panchang & School Holidays",
+          category: "utilities",
+          description: "तिथि, त्यौहार, शुभ मुहूर्त एवं सरकारी प्राथमिक विद्यालय अवकाश सूची।",
+          icon: "Calendar",
+          link: "https://drikpanchang.com/",
+          badge: "New",
+          active: true,
+        },
+        {
+          id: "srv_earning",
+          titleHi: "IOIS सदस्यता एवं दैनिक पेआउट प्लान्स",
+          titleEn: "IOIS Earning & Membership",
+          category: "income",
+          description: "₹10 से ₹999 सदस्यता प्लान्स, 50-70% डायरेक्ट कमीशन एवं तत्काल बैंक सेटलमेंट।",
+          icon: "CreditCard",
+          link: "#plans",
+          badge: "Official",
           active: true,
         },
       ]);

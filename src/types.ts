@@ -84,6 +84,8 @@ export interface VarnamalaItem {
 export interface EnglishAlphabetItem {
   letter: string;
   lowercase: string;
+  upper?: string;
+  lower?: string;
   example1: {
     word: string;
     emoji: string;
