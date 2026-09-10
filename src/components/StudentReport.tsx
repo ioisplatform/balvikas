@@ -32,12 +32,14 @@ export const StudentReport: React.FC<StudentReportProps> = ({
   };
 
   // Progress metrics
-  const hindiPct = Math.min(Math.round((progress.hindiLettersLearned.length / 52) * 100), 100);
-  const englishPct = Math.min(Math.round((progress.englishLettersLearned.length / 26) * 100), 100);
-  const quizAccuracy =
-    progress.quizTotalQuestions > 0
-      ? Math.round((progress.quizCorrectAnswers / progress.quizTotalQuestions) * 100)
-      : 85;
+  const hindiList = Array.isArray(progress?.hindiLettersLearned) ? progress.hindiLettersLearned : [];
+  const englishList = Array.isArray(progress?.englishLettersLearned) ? progress.englishLettersLearned : [];
+  const badgesList = Array.isArray(progress?.badgesUnlocked) ? progress.badgesUnlocked : [];
+  const hindiPct = Math.min(Math.round((hindiList.length / 52) * 100), 100);
+  const englishPct = Math.min(Math.round((englishList.length / 26) * 100), 100);
+  const totalQ = progress?.quizTotalQuestions || 0;
+  const correctQ = progress?.quizCorrectAnswers || 0;
+  const quizAccuracy = totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 85;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -130,7 +132,7 @@ export const StudentReport: React.FC<StudentReportProps> = ({
             <div className="p-4 bg-amber-50/60 dark:bg-slate-800/40 rounded-2xl border border-amber-200 dark:border-slate-700 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-amber-900 dark:text-amber-300">हिंदी वर्णमाला व शब्द रचना</span>
-                <span>{hindiPct}% पूर्ण ({progress.hindiLettersLearned.length}/52 वर्ण)</span>
+                <span>{hindiPct}% पूर्ण ({hindiList.length}/52 वर्ण)</span>
               </div>
               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
@@ -144,7 +146,7 @@ export const StudentReport: React.FC<StudentReportProps> = ({
             <div className="p-4 bg-blue-50/60 dark:bg-slate-800/40 rounded-2xl border border-blue-200 dark:border-slate-700 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-blue-900 dark:text-blue-300">Good English (A to Z Letters)</span>
-                <span>{englishPct}% पूर्ण ({progress.englishLettersLearned.length}/26 अक्षर)</span>
+                <span>{englishPct}% पूर्ण ({englishList.length}/26 अक्षर)</span>
               </div>
               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
@@ -169,7 +171,7 @@ export const StudentReport: React.FC<StudentReportProps> = ({
             <div className="p-4 bg-emerald-50/60 dark:bg-slate-800/40 rounded-2xl border border-emerald-200 dark:border-slate-700 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-emerald-900 dark:text-emerald-300">चित्र ज्ञान (GK) व कला दीर्घा</span>
-                <span>{progress.drawingsCount} कलाकृतियां सहेजी गई</span>
+                <span>{progress?.drawingsCount || 0} कलाकृतियां सहेजी गई</span>
               </div>
               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 w-full" />
@@ -187,7 +189,7 @@ export const StudentReport: React.FC<StudentReportProps> = ({
 
           <div className="flex items-center gap-3 overflow-x-auto py-2">
             {DIGITAL_BADGES.map((badge) => {
-              const isUnlocked = progress.badgesUnlocked.includes(badge.id);
+              const isUnlocked = badgesList.includes(badge.id);
               return (
                 <div
                   key={badge.id}

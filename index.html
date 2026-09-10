@@ -30,12 +30,19 @@
       </div>
     </div>
     <script>
+      // Immediate error recovery for client browsers
+      window.addEventListener('error', function(e) {
+        var loader = document.getElementById('iois-app-loader');
+        if (loader) {
+          loader.innerHTML = '<div style="font-size: 32px; margin-bottom: 12px;">⚠️</div><div style="font-size: 18px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">लोडिंग में समस्या आई</div><div style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; max-width: 320px;">' + (e.message || 'पुराने कैश या डेटा को रीसेट करके लोड करें') + '</div><button onclick="localStorage.clear();window.location.reload(true);" style="padding: 10px 20px; background: #f59e0b; color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer;">कैश साफ़ कर पुनः लोड करें</button>';
+        }
+      });
       setTimeout(function() {
         var loader = document.getElementById('iois-app-loader');
         if (loader) {
-          loader.innerHTML = '<div style="font-size: 32px; margin-bottom: 12px;">⚠️</div><div style="font-size: 18px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">लोड होने में समय लग रहा है</div><div style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; max-width: 320px;">कृपया पेज को रीफ्रेश करें अथवा कैश साफ़ करें।</div><button onclick="window.location.reload(true)" style="padding: 10px 20px; background: #f59e0b; color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer;">पुनः लोड करें (Reload)</button>';
+          loader.innerHTML = '<div style="font-size: 32px; margin-bottom: 12px;">⚠️</div><div style="font-size: 18px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">लोड होने में समय लग रहा है</div><div style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; max-width: 320px;">ब्राउज़र का पुराना डेटा साफ़ करके पुनः लोड करें।</div><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;"><button onclick="window.location.reload(true)" style="padding: 10px 16px; background: #334155; color: #f8fafc; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer;">सामान्य रीफ्रेश</button><button onclick="localStorage.clear();window.location.reload(true);" style="padding: 10px 16px; background: #f59e0b; color: #0f172a; border: none; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer;">डेटा रीसेट व लोड करें</button></div>';
         }
-      }, 7000);
+      }, 4000);
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

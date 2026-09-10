@@ -54,14 +54,19 @@ export default function App() {
 
   // Student Progress
   const [progress, setProgress] = useState<StudentProgress>(() => {
-    try {
-      const saved = localStorage.getItem("iois_progress");
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-    return {
+    const defaultProgress: StudentProgress = {
       userId: user?.uniqueId || "guest",
+      hindiProgress: 35,
+      englishProgress: 25,
+      mathProgress: 20,
+      drawingCount: 1,
+      quizzesCompleted: 1,
+      quizAccuracy: 80,
+      studyTimeMinutes: 45,
+      streakDays: 3,
+      badges: ["badge_varnamala_champ"],
+      savedDrawings: [],
+      classGrade: "Class 1",
       hindiLettersLearned: ["अ", "आ", "इ", "ई", "क", "ख"],
       englishLettersLearned: ["A", "B", "C"],
       mathCompleted: false,
@@ -71,6 +76,34 @@ export default function App() {
       quizCorrectAnswers: 4,
       lastActive: new Date().toISOString(),
     };
+
+    try {
+      const saved = localStorage.getItem("iois_progress");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...defaultProgress,
+          ...parsed,
+          hindiLettersLearned: Array.isArray(parsed?.hindiLettersLearned)
+            ? parsed.hindiLettersLearned
+            : defaultProgress.hindiLettersLearned,
+          englishLettersLearned: Array.isArray(parsed?.englishLettersLearned)
+            ? parsed.englishLettersLearned
+            : defaultProgress.englishLettersLearned,
+          badgesUnlocked: Array.isArray(parsed?.badgesUnlocked)
+            ? parsed.badgesUnlocked
+            : defaultProgress.badgesUnlocked,
+          drawingsCount: typeof parsed?.drawingsCount === "number"
+            ? parsed.drawingsCount
+            : (typeof parsed?.drawingCount === "number" ? parsed.drawingCount : 1),
+          quizTotalQuestions: typeof parsed?.quizTotalQuestions === "number" ? parsed.quizTotalQuestions : 5,
+          quizCorrectAnswers: typeof parsed?.quizCorrectAnswers === "number" ? parsed.quizCorrectAnswers : 4,
+        };
+      }
+    } catch {
+      // ignore
+    }
+    return defaultProgress;
   });
 
   // Saved Artworks

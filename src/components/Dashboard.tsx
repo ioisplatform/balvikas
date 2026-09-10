@@ -150,7 +150,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono block">
-            {progress.hindiLettersLearned.length}
+            {(progress?.hindiLettersLearned || []).length}
           </span>
           <span className="text-xs text-slate-500 font-semibold block">सीखे गए हिंदी अक्षर</span>
         </div>
@@ -166,7 +166,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono block">
-            {progress.englishLettersLearned.length}
+            {(progress?.englishLettersLearned || []).length}
           </span>
           <span className="text-xs text-slate-500 font-semibold block">Good English Alphabets</span>
         </div>
@@ -182,7 +182,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono block">
-            {progress.drawingsCount}
+            {progress?.drawingsCount || 0}
           </span>
           <span className="text-xs text-slate-500 font-semibold block">सहेजी गई कलाकृतियाँ</span>
         </div>
@@ -198,7 +198,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono block">
-            {progress.badgesUnlocked.length} / {DIGITAL_BADGES.length}
+            {(progress?.badgesUnlocked || []).length} / {DIGITAL_BADGES.length}
           </span>
           <span className="text-xs text-slate-500 font-semibold block">अर्जित डिजिटल मेडल</span>
         </div>
