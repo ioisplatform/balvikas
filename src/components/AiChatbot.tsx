@@ -25,10 +25,11 @@ interface AiChatbotProps {
 const cleanChatText = (text: string): string => {
   if (!text) return "";
   return text
-    .replace(/\*{2,3}/g, "") // remove ** or ***
-    .replace(/^\s*\*\s+/gm, "• ") // replace list asterisk with clean bullet
-    .replace(/\*/g, "") // remove any remaining single asterisks
-    .replace(/\n{3,}/g, "\n\n") // clean excess newlines
+    .replace(/\*{1,5}/g, "") // remove all *, **, ***, ****
+    .replace(/^[ \t]*[\*•\-\+]\s*/gm, "• ") // replace list asterisk with clean bullet
+    .replace(/[★☆✦✧]/g, "") // remove star glyph symbols
+    .replace(/\\?\*/g, "") // remove any escaped or standalone asterisks
+    .replace(/(\n\s*){3,}/g, "\n\n") // clean excess newlines
     .trim();
 };
 

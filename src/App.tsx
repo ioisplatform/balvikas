@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ShieldCheck, CheckCircle2, Sparkles, UserCheck } from "lucide-react";
 import { Header } from "./components/Header";
 import { Dashboard } from "./components/Dashboard";
 import { HindiSection } from "./components/HindiSection";
@@ -46,7 +47,13 @@ export default function App() {
 
   // Modals state
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isDevicesOpen, setIsDevicesOpen] = useState<boolean>(false);
+
+  const openAuth = (mode: "login" | "register" = "login") => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
+  };
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
@@ -271,7 +278,7 @@ export default function App() {
         setSoundEnabled={setSoundEnabled}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => openAuth("login")}
         onLogout={handleLogout}
         onOpenDevices={() => setIsDevicesOpen(true)}
         onOpenAdmin={() => setIsAdminOpen(true)}
@@ -283,6 +290,57 @@ export default function App() {
         setSelectedGrade={setSelectedGrade}
       />
 
+      {/* Global Welcome & Trust Banner */}
+      {!user ? (
+        <aside aria-label="Welcome and login notice" className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+            <div className="flex items-center gap-2.5 text-center sm:text-left">
+              <span className="p-1 rounded-lg bg-white/20 shrink-0">
+                <ShieldCheck className="w-4 h-4 text-amber-100" />
+              </span>
+              <p className="leading-snug">
+                <strong className="font-extrabold text-white">नमस्ते! IOIS बाल विकास मंच पर आपका हार्दिक स्वागत है</strong>
+                <span className="hidden sm:inline"> — </span>
+                <span className="block sm:inline text-amber-100 font-medium">
+                  अपनी अध्ययन प्रगति सुरक्षित रखने, डिजिटल ID कार्ड पाने और 48 पृष्ठों की पूरी अध्ययन किट अनलॉक करने के लिए कृपया लॉगिन या पंजीकरण (मात्र ₹10) करें।
+                </span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => openAuth("login")}
+                className="px-3 py-1.5 bg-white text-amber-700 hover:bg-amber-50 font-extrabold rounded-xl text-xs shadow-sm transition-transform active:scale-95 flex items-center gap-1"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>सदस्य लॉगिन</span>
+              </button>
+              <button
+                onClick={() => openAuth("register")}
+                className="px-3 py-1.5 bg-slate-950 hover:bg-slate-900 text-amber-300 font-extrabold rounded-xl text-xs border border-amber-400/40 shadow-sm transition-transform active:scale-95 flex items-center gap-1"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>नया रजिस्ट्रेशन (₹10)</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      ) : (
+        <aside aria-label="Active membership status" className="bg-emerald-600 dark:bg-emerald-800 text-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-200 shrink-0" />
+              <span>
+                नमस्ते, <strong className="font-bold text-white">{user.name}</strong> जी! आपकी डिजिटल आईडी (<span className="font-mono font-bold text-amber-200">{user.uniqueId}</span>) सक्रिय है • प्लान: {user.planName}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-emerald-100">
+              <span>सुरक्षित क्लाउड ऑटो-सिंक सक्रिय</span>
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+            </div>
+          </div>
+        </aside>
+      )}
+
       {/* Main View Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         {activeTab === "dashboard" && (
@@ -293,7 +351,7 @@ export default function App() {
             language={language}
             soundEnabled={soundEnabled}
             onNavigate={(tab) => setActiveTab(tab)}
-            onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenAuth={() => openAuth("login")}
             onOpenDevices={() => setIsDevicesOpen(true)}
           />
         )}
@@ -301,7 +359,7 @@ export default function App() {
         {activeTab === "pdf_viewer" && (
           <PdfViewerSection
             user={user}
-            onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenAuth={(mode) => openAuth(mode || "login")}
             language={language}
             soundEnabled={soundEnabled}
           />
@@ -313,7 +371,7 @@ export default function App() {
             language={language}
             soundEnabled={soundEnabled}
             onOpenAdmin={() => setIsAdminOpen(true)}
-            onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenAuth={() => openAuth("login")}
           />
         )}
 
@@ -438,6 +496,7 @@ export default function App() {
       {/* Modals */}
       <AuthModal
         isOpen={isAuthOpen}
+        initialMode={authMode}
         onClose={() => setIsAuthOpen(false)}
         onSuccessLogin={(loggedInUser) => {
           setUser(loggedInUser);

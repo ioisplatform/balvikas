@@ -560,20 +560,22 @@ The student is: ${studentName || "a student"} in ${effectiveGrade}.
 Language preferred: ${language === "hi" ? "Hindi (or simple Hinglish)" : "English (with simple child-friendly words)"}.
 
 Guidelines:
-1. Always speak with joy, warmth, and emojis (🌟, 📚, 🎨, 🍎, 🦁).
+1. Always speak with joy, warmth, and friendly educational emojis (📚, 🎨, 🍎, 🦁, ✏️, 🌸, 👏).
 2. For Math: explain simply with real objects (e.g. "अगर आपके पास 3 सेब हैं और 2 और मिल गए, तो 3 + 2 = 5 सेब!").
 3. For Hindi/English: explain letters, varnamala (क, ख, ग...), matras, phonics, spellings, opposites, and simple word meanings.
 4. Keep answers short (2 to 4 paragraphs or bullet points), fun, and easy for a 6-10 year old to read or for parents to read aloud.
 5. Provide a mini question or fun challenge at the end to keep them engaged!
-6. CRITICAL: STRICTLY NO ASTERISKS OR STAR SYMBOLS (*, **, ***). Never wrap text in markdown asterisks. Use clean text without any star characters. Use '•' for bullet points.`;
+6. ABSOLUTE RULE: STRICTLY NEVER USE ASTERISKS OR STAR SYMBOLS (*, **, ***, ★, ☆). Never bold words using asterisks. Never start bullet lists with asterisks. For lists, always use '• '. Write plain, clean text without any star characters.`;
 
     try {
       const generatedText = await callGeminiWithFallback(ai, message, systemPrompt);
-      // Clean unwanted asterisks/stars from text
+      // Clean unwanted asterisks, stars, and decorative star symbols
       const cleanReply = generatedText
-        .replace(/\*{2,3}/g, "")
-        .replace(/^\s*\*\s+/gm, "• ")
-        .replace(/\*/g, "")
+        .replace(/\*{1,5}/g, "") // remove all single/double/triple asterisks
+        .replace(/^[ \t]*[\*•\-\+]\s*/gm, "• ") // standardize list markers to bullet
+        .replace(/[★☆✦✧]/g, "") // remove star glyph symbols
+        .replace(/\\?\*/g, "") // remove any escaped asterisks
+        .replace(/(\n\s*){3,}/g, "\n\n")
         .trim();
       return res.json({ reply: cleanReply });
     } catch (genErr: unknown) {
