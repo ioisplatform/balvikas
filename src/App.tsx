@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ShieldCheck, CheckCircle2, Sparkles, UserCheck } from "lucide-react";
+import { ShieldCheck, CheckCircle2, Sparkles, UserCheck, Lock } from "lucide-react";
 import { Header } from "./components/Header";
 import { Dashboard } from "./components/Dashboard";
 import { HindiSection } from "./components/HindiSection";
@@ -18,6 +18,7 @@ import { DeviceSecurityModal } from "./components/DeviceSecurityModal";
 import { AdminPanel } from "./components/AdminPanel";
 import { TutorialModal } from "./components/TutorialModal";
 import { NotificationSettings } from "./components/NotificationSettings";
+import { UnauthenticatedPortal } from "./components/UnauthenticatedPortal";
 import { UserProfile, StudentProgress, DrawingItem } from "./types";
 import { DIGITAL_BADGES } from "./data/learningData";
 import { playAudioText } from "./utils/speech";
@@ -27,7 +28,13 @@ export default function App() {
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
       const saved = localStorage.getItem("iois_user");
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      if (parsed?.isDemo) {
+        localStorage.removeItem("iois_user");
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -265,6 +272,37 @@ export default function App() {
     setActiveTab("dashboard");
   };
 
+  // If user is not logged in, enforce the authentication portal:
+  // User ONLY sees: Bal Guru AI, New Registration, Member Login, and IOIS Official Page.
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors">
+        <UnauthenticatedPortal
+          onSuccessLogin={(loggedInUser) => {
+            setUser(loggedInUser);
+            try {
+              localStorage.setItem("iois_user", JSON.stringify(loggedInUser));
+            } catch {}
+          }}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+          language={language}
+          setLanguage={setLanguage}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          soundEnabled={soundEnabled}
+          setSoundEnabled={setSoundEnabled}
+        />
+
+        {/* Admin console access for platform administrators */}
+        <AdminPanel
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+          language={language}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors">
       {/* Global Header */}
@@ -290,56 +328,21 @@ export default function App() {
         setSelectedGrade={setSelectedGrade}
       />
 
-      {/* Global Welcome & Trust Banner */}
-      {!user ? (
-        <aside aria-label="Welcome and login notice" className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-            <div className="flex items-center gap-2.5 text-center sm:text-left">
-              <span className="p-1 rounded-lg bg-white/20 shrink-0">
-                <ShieldCheck className="w-4 h-4 text-amber-100" />
-              </span>
-              <p className="leading-snug">
-                <strong className="font-extrabold text-white">नमस्ते! IOIS बाल विकास मंच पर आपका हार्दिक स्वागत है</strong>
-                <span className="hidden sm:inline"> — </span>
-                <span className="block sm:inline text-amber-100 font-medium">
-                  अपनी अध्ययन प्रगति सुरक्षित रखने, डिजिटल ID कार्ड पाने और 48 पृष्ठों की पूरी अध्ययन किट अनलॉक करने के लिए कृपया लॉगिन या पंजीकरण (मात्र ₹10) करें।
-                </span>
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => openAuth("login")}
-                className="px-3 py-1.5 bg-white text-amber-700 hover:bg-amber-50 font-extrabold rounded-xl text-xs shadow-sm transition-transform active:scale-95 flex items-center gap-1"
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>सदस्य लॉगिन</span>
-              </button>
-              <button
-                onClick={() => openAuth("register")}
-                className="px-3 py-1.5 bg-slate-950 hover:bg-slate-900 text-amber-300 font-extrabold rounded-xl text-xs border border-amber-400/40 shadow-sm transition-transform active:scale-95 flex items-center gap-1"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>नया रजिस्ट्रेशन (₹10)</span>
-              </button>
-            </div>
+      {/* Global Active Membership Status Banner */}
+      <aside aria-label="Active membership status" className="bg-emerald-600 dark:bg-emerald-800 text-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-200 shrink-0" />
+            <span>
+              नमस्ते, <strong className="font-bold text-white">{user.name}</strong> जी! आपकी डिजिटल सदस्य आईडी (<span className="font-mono font-bold text-amber-200">{user.uniqueId}</span>) सक्रिय है • प्लान: {user.planName}
+            </span>
           </div>
-        </aside>
-      ) : (
-        <aside aria-label="Active membership status" className="bg-emerald-600 dark:bg-emerald-800 text-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-200 shrink-0" />
-              <span>
-                नमस्ते, <strong className="font-bold text-white">{user.name}</strong> जी! आपकी डिजिटल आईडी (<span className="font-mono font-bold text-amber-200">{user.uniqueId}</span>) सक्रिय है • प्लान: {user.planName}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-emerald-100">
-              <span>सुरक्षित क्लाउड ऑटो-सिंक सक्रिय</span>
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-            </div>
+          <div className="flex items-center gap-2 text-[11px] text-emerald-100">
+            <span>✓ 48 पृष्ठ अध्ययन किट 100% स्पष्ट व सक्रिय</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
           </div>
-        </aside>
-      )}
+        </div>
+      </aside>
 
       {/* Main View Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">

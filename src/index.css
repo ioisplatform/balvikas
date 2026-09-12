@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header,
+  aside,
+  nav,
+  .no-print,
+  [aria-label="Welcome and login notice"],
+  [aria-label="Active membership status"],
+  [aria-label="PDF Page Thumbnails"] {
+    display: none !important;
+  }
+  #printable-pdf-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

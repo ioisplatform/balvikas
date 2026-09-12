@@ -655,7 +655,7 @@ app.post("/api/auth/register", (req, res) => {
       designation: designation || "Verified Elite Member",
       utrNumber: utrNumber || "",
       payoutUpi: payoutUpi || "",
-      paymentStatus: utrNumber ? "verified" : "pending",
+      paymentStatus: "verified",
       photoUrl: photoUrl || "",
       referralEarnings: 0,
       twoFactorEnabled: false,

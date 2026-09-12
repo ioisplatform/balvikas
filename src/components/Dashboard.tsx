@@ -269,27 +269,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Special Highlights: PDF Kit & Services Portal */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* PDF Kit 48 Pages Card */}
+        {/* Bal Vikas Study Material 48 Pages Card */}
         <div
           onClick={() => onNavigate("pdf_viewer")}
           className="group p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-800/80 rounded-3xl border border-emerald-200 dark:border-slate-700 hover:border-emerald-400 hover:shadow-xl cursor-pointer transition-all space-y-3"
         >
           <div className="flex items-center justify-between">
             <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-black shadow-md group-hover:scale-110 transition-transform">
-              📑
+              📚
             </div>
             <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-extrabold text-[11px]">
               48 पृष्ठ संपूर्ण किट
             </span>
           </div>
           <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">
-            बाल विकास 48-पृष्ठ डिजिटल किट (NCERT)
+            बाल विकास के लिए अध्ययन सामग्री (48 पृष्ठ)
           </h3>
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-            मनोहर पोथी, गुड इंग्लिश, भारत की प्रतिज्ञा एवं अभ्यास पृष्ठ (पृष्ठ 1-5 फ्री, 6-48 सदस्य अनलॉक)।
+            मनोहर पोथी, गुड इंग्लिश, भारत की प्रतिज्ञा, गणित व सामान्य ज्ञान (संपूर्ण 48 पृष्ठ मुद्रित पुस्तक रूप में)।
           </p>
           <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
-            <span>PDF किट खोलें व पढ़ें</span>
+            <span>अध्ययन सामग्री खोलें व पढ़ें</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </span>
         </div>

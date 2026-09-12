@@ -17,6 +17,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { UserProfile } from "../types";
+import { IOISRunningHeader } from "./IOISRunningHeader";
 
 interface HeaderProps {
   user: UserProfile | null;
@@ -65,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: "dashboard", labelHi: "डैशबोर्ड", labelEn: "Dashboard", icon: "🏠" },
-    { id: "pdf_viewer", labelHi: "बाल विकास PDF (48 पृष्ठ)", labelEn: "PDF Kit (48 Pages)", icon: "📑" },
+    { id: "pdf_viewer", labelHi: "बाल विकास के लिए अध्ययन सामग्री", labelEn: "Bal Vikas Study Material", icon: "📚" },
     { id: "services", labelHi: "IOIS सेवा पोर्टल", labelEn: "Services Portal", icon: "🌐" },
     { id: "hindi", labelHi: "हिंदी (वर्णमाला)", labelEn: "Hindi (Varnamala)", icon: "अ" },
     { id: "english", labelHi: "Good English", labelEn: "Good English", icon: "Aa" },
@@ -81,6 +82,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-amber-200 dark:border-slate-800 shadow-sm transition-colors">
+      {/* Official Running Ticker with IOIS Logo */}
+      <IOISRunningHeader onJoinClick={onOpenAuth} showJoinBtn={!user} />
+
       {/* Top Banner with Unique ID, Grade Selector, and Quick Actions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 border-b border-amber-100/70 dark:border-slate-800/80 text-xs sm:text-sm">
         {/* Logo and Brand */}

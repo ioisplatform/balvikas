@@ -60,6 +60,7 @@ export interface UserProfile {
   referralEarnings: number;
   twoFactorEnabled: boolean;
   registeredAt?: string;
+  isDemo?: boolean;
   devices: DeviceSession[];
   progress?: StudentProgress;
 }

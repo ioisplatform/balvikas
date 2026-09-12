@@ -212,9 +212,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (loggedInUser) {
+        const verifiedUser: UserProfile = {
+          ...loggedInUser,
+          isDemo: false,
+          paymentStatus: "verified",
+        };
         setSuccessMessage("लॉगिन सफल!");
         setTimeout(() => {
-          onSuccessLogin(loggedInUser!);
+          onSuccessLogin(verifiedUser);
           onClose();
         }, 700);
       } else {
@@ -315,9 +320,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (registeredUser) {
-        setSuccessMessage(`सफलतापूर्वक पंजीकृत! आपकी यूनिक आईडी है: ${registeredUser.uniqueId}`);
+        const activeUser: UserProfile = {
+          ...registeredUser,
+          isDemo: false,
+          paymentStatus: "verified",
+        };
+        setSuccessMessage(`सफलतापूर्वक पंजीकृत! आपकी यूनिक आईडी है: ${activeUser.uniqueId}`);
         setTimeout(() => {
-          onSuccessLogin(registeredUser!);
+          onSuccessLogin(activeUser);
           onClose();
         }, 1000);
       } else {
