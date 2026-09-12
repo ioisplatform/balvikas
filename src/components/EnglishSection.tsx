@@ -16,12 +16,14 @@ interface EnglishSectionProps {
   language: "hi" | "en";
   soundEnabled: boolean;
   onLetterLearned?: (letter: string) => void;
+  onNavigateToAlphabet26?: () => void;
 }
 
 export const EnglishSection: React.FC<EnglishSectionProps> = ({
   language,
   soundEnabled,
   onLetterLearned,
+  onNavigateToAlphabet26,
 }) => {
   const [activeTab, setActiveTab] = useState<"letters" | "sightWords" | "rhymes">("letters");
   const [selectedLetter, setSelectedLetter] = useState<EnglishAlphabetItem>(ENGLISH_ALPHABET[0]);
@@ -155,6 +157,14 @@ export const EnglishSection: React.FC<EnglishSectionProps> = ({
 
         {/* Tab switcher */}
         <div className="flex flex-wrap gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+          {onNavigateToAlphabet26 && (
+            <button
+              onClick={onNavigateToAlphabet26}
+              className="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 hover:bg-yellow-300 shadow-md transition-all flex items-center gap-1.5"
+            >
+              <span>🔤 26 सचित्र पृष्ठ (A-Z Full Book)</span>
+            </button>
+          )}
           <button
             onClick={() => setActiveTab("letters")}
             className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${

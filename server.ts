@@ -652,10 +652,10 @@ app.post("/api/auth/register", (req, res) => {
       referralCode: referralCode || "",
       sponsorId: sponsorId || settings.sponsorDefaultId || "IOIS999VK01",
       city: city || "",
-      designation: designation || "Verified Elite Member",
+      designation: designation || "Member",
       utrNumber: utrNumber || "",
       payoutUpi: payoutUpi || "",
-      paymentStatus: "verified",
+      paymentStatus: "pending", // Pending admin verification and approval
       photoUrl: photoUrl || "",
       referralEarnings: 0,
       twoFactorEnabled: false,
@@ -742,6 +742,15 @@ app.post("/api/auth/login", (req, res) => {
 
     if (user.password !== password) {
       return res.status(401).json({ error: "गलत पासवर्ड (Incorrect Password)" });
+    }
+
+    // User must be approved by admin before login
+    if (user.paymentStatus !== "verified" && user.paymentStatus !== "approved") {
+      return res.status(403).json({
+        error: "आपका खाता अभी एडमिन द्वारा स्वीकृत (Approved) नहीं हुआ है। जब एडमिन द्वारा आपका रजिस्ट्रेशन स्वीकृत किया जाएगा, तभी आप लॉगिन कर सकेंगे।",
+        isPendingApproval: true,
+        status: user.paymentStatus || "pending",
+      });
     }
 
     // If 2FA enabled and code not verified yet

@@ -45,6 +45,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [data, setData] = useState<AdminOverview | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "services" | "members" | "settings" | "backup">("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "verified">("all");
   const [actionSuccess, setActionSuccess] = useState("");
 
   // Service Edit / Add Modal State
@@ -333,15 +334,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const totalEarnings = data?.stats?.totalEarnings || data?.totalRevenue || 0;
   const totalServices = data?.services?.length || 0;
 
+  const pendingCount = data?.users?.filter((u) => u.paymentStatus !== "verified").length || 0;
+  const verifiedCount = data?.users?.filter((u) => u.paymentStatus === "verified").length || 0;
+
   const filteredUsers =
-    data?.users?.filter(
-      (u) =>
+    data?.users?.filter((u) => {
+      const matchesSearch =
         u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.uniqueId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.mobile.includes(searchQuery) ||
-        (u.utrNumber && u.utrNumber.includes(searchQuery))
-    ) || [];
+        (u.utrNumber && u.utrNumber.includes(searchQuery));
+      if (!matchesSearch) return false;
+      if (statusFilter === "pending") return u.paymentStatus !== "verified";
+      if (statusFilter === "verified") return u.paymentStatus === "verified";
+      return true;
+    }) || [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm overflow-y-auto">
@@ -824,6 +832,46 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                       />
                     </div>
+                  </div>
+
+                  {/* Filter chips */}
+                  <div className="flex items-center gap-2 pt-1 border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <button
+                      onClick={() => setStatusFilter("all")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                        statusFilter === "all"
+                          ? "bg-amber-500 text-white shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+                      }`}
+                    >
+                      सभी सदस्य ({data?.users?.length || 0})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter("pending")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                        statusFilter === "pending"
+                          ? "bg-rose-500 text-white shadow-sm"
+                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100"
+                      }`}
+                    >
+                      <span>लंबित अनुमोदन (Pending Approval)</span>
+                      <span className="px-1.5 py-0.2 rounded-full bg-white/30 text-[10px] font-black">
+                        {pendingCount}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter("verified")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                        statusFilter === "verified"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100"
+                      }`}
+                    >
+                      <span>स्वीकृत सदस्य (Approved)</span>
+                      <span className="px-1.5 py-0.2 rounded-full bg-white/30 text-[10px] font-black">
+                        {verifiedCount}
+                      </span>
+                    </button>
                   </div>
 
                   <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">

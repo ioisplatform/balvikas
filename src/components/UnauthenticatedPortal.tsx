@@ -120,46 +120,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
         throw new Error(errData.error || "लॉगिन विफल। कृपया सही आईडी व पासवर्ड दर्ज करें।");
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "लॉगिन विफल";
-      // Fallback for immediate verified member testing
-      if (
-        loginIdentifier.trim().toUpperCase() === "IOIS10RK01" ||
-        loginIdentifier.trim().toUpperCase() === "IOIS999VK01" ||
-        loginIdentifier.trim() === "9876543210"
-      ) {
-        const verifiedUser: UserProfile = {
-          uniqueId: loginIdentifier.trim().toUpperCase().startsWith("IOIS999") ? "IOIS999VK01" : "IOIS10RK01",
-          name: "राहुल कुमार (सक्रिय सदस्य)",
-          email: "rahul@iois.in",
-          mobile: "9876543210",
-          planId: "bal_vikas_10",
-          planName: "बाल विकास बेसिक (Class 1-5)",
-          planPrice: 10,
-          referralCode: "IOISVIP",
-          classGrade: "Class 1",
-          sponsorId: "IOIS999VK01",
-          city: "Patna, Bihar",
-          designation: "सक्रिय पंजीकृत सदस्य",
-          paymentStatus: "verified",
-          isDemo: false,
-          referralEarnings: 21,
-          twoFactorEnabled: false,
-          registeredAt: new Date().toISOString(),
-          devices: [
-            {
-              id: "dev_verified_01",
-              deviceName: "Web Browser",
-              browser: "Chrome",
-              ip: "127.0.0.1",
-              lastActive: "अभी सक्रिय",
-              isCurrent: true,
-            },
-          ],
-        };
-        localStorage.setItem("iois_user", JSON.stringify(verifiedUser));
-        onSuccessLogin(verifiedUser);
-        return;
-      }
+      const msg = err instanceof Error ? err.message : "लॉगिन विफल। कृपया सही आईडी व पासवर्ड दर्ज करें।";
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -199,59 +160,25 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const activeUser: UserProfile = {
-          ...data.user,
-          isDemo: false,
-          paymentStatus: "verified",
-        };
-        setSuccessMessage(`पंजीकरण सफल! आपकी डिजिटल सदस्य आईडी: ${activeUser.uniqueId}`);
-        localStorage.setItem("iois_user", JSON.stringify(activeUser));
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.user) {
+        const assignedId = data.user.uniqueId;
+        setSuccessMessage(
+          `✅ पंजीकरण सफल! आपकी डिजिटल सदस्य आईडी "${assignedId}" है। आपका खाता एडमिन अनुमोदन (Approval) हेतु दर्ज हो गया है। एडमिन द्वारा स्वीकृत (Approved) होने के बाद ही आप लॉगिन कर पाएंगे।`
+        );
+        // Pre-fill login identifier and redirect to login screen
+        setLoginIdentifier(assignedId);
+        setLoginPassword("");
         setTimeout(() => {
-          onSuccessLogin(activeUser);
-        }, 800);
+          setActiveTab("login");
+        }, 3000);
       } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "पंजीकरण विफल। कृपया विवरण जांचें।");
+        throw new Error(data.error || "पंजीकरण विफल। कृपया सही विवरण दर्ज करें।");
       }
     } catch (err: unknown) {
-      // Fallback for static client testing
-      const newId = `IOIS${Math.floor(1000 + Math.random() * 9000)}`;
-      const activeUser: UserProfile = {
-        uniqueId: newId,
-        name: regName.trim(),
-        email: regEmail.trim() || `${regMobile.trim()}@iois.in`,
-        mobile: regMobile.trim(),
-        planId: selectedPlanId,
-        planName: currentPlan.name,
-        planPrice: currentPlan.price,
-        referralCode: `REF${newId}`,
-        classGrade: regGrade,
-        sponsorId: sponsorId.trim() || "IOIS999VK01",
-        city: "Patna, Bihar",
-        designation: "सक्रिय पंजीकृत सदस्य",
-        paymentStatus: "verified",
-        isDemo: false,
-        referralEarnings: 0,
-        twoFactorEnabled: false,
-        registeredAt: new Date().toISOString(),
-        devices: [
-          {
-            id: `dev_${Date.now()}`,
-            deviceName: "Web Browser",
-            browser: "Chrome",
-            ip: "127.0.0.1",
-            lastActive: "अभी सक्रिय",
-            isCurrent: true,
-          },
-        ],
-      };
-      setSuccessMessage(`पंजीकरण सफल! आपकी डिजिटल सदस्य आईडी: ${newId}`);
-      localStorage.setItem("iois_user", JSON.stringify(activeUser));
-      setTimeout(() => {
-        onSuccessLogin(activeUser);
-      }, 800);
+      const msg = err instanceof Error ? err.message : "पंजीकरण विफल। कृपया पुनः प्रयास करें।";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -524,8 +451,9 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
                     </button>
                   </div>
 
-                  <div className="text-[11px] text-slate-400">
-                    त्वरित परीक्षण हेतु: आईडी <strong className="font-mono text-slate-600 dark:text-slate-300">IOIS10RK01</strong> एवं पासवर्ड <strong className="font-mono text-slate-600 dark:text-slate-300">123456</strong> का उपयोग कर सकते हैं।
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <ShieldCheck className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>केवल एडमिन द्वारा स्वीकृत (Approved) सदस्य ही पोर्टल में लॉगिन कर सकते हैं।</span>
                   </div>
                 </div>
               </div>

@@ -66,6 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: "dashboard", labelHi: "डैशबोर्ड", labelEn: "Dashboard", icon: "🏠" },
+    { id: "alphabet26", labelHi: "A-Z 26 पृष्ठ", labelEn: "A-Z 26 Pages", icon: "🔤" },
     { id: "pdf_viewer", labelHi: "बाल विकास के लिए अध्ययन सामग्री", labelEn: "Bal Vikas Study Material", icon: "📚" },
     { id: "services", labelHi: "IOIS सेवा पोर्टल", labelEn: "Services Portal", icon: "🌐" },
     { id: "hindi", labelHi: "हिंदी (वर्णमाला)", labelEn: "Hindi (Varnamala)", icon: "अ" },

@@ -72,6 +72,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* Action Row */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
+              onClick={() => onNavigate("alphabet26")}
+              className="px-5 py-2.5 bg-yellow-400 text-slate-950 font-black rounded-2xl shadow-lg hover:bg-yellow-300 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-2"
+            >
+              <span>🔤 A से Z 26 पृष्ठ (Rhymes & AI Art)</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => onNavigate("hindi")}
               className="px-5 py-2.5 bg-white text-orange-600 font-black rounded-2xl shadow-lg hover:bg-orange-50 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-2"
             >

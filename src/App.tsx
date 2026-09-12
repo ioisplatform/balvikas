@@ -13,6 +13,7 @@ import { StudentReport } from "./components/StudentReport";
 import { IOISPlansSection } from "./components/IOISPlansSection";
 import { PdfViewerSection } from "./components/PdfViewerSection";
 import { ServicesPortal } from "./components/ServicesPortal";
+import { Alphabet26Section } from "./components/Alphabet26Section";
 import { AuthModal } from "./components/AuthModal";
 import { DeviceSecurityModal } from "./components/DeviceSecurityModal";
 import { AdminPanel } from "./components/AdminPanel";
@@ -359,6 +360,13 @@ export default function App() {
           />
         )}
 
+        {activeTab === "alphabet26" && (
+          <Alphabet26Section
+            onBackToDashboard={() => setActiveTab("dashboard")}
+            language={language}
+          />
+        )}
+
         {activeTab === "pdf_viewer" && (
           <PdfViewerSection
             user={user}
@@ -391,6 +399,7 @@ export default function App() {
             language={language}
             soundEnabled={soundEnabled}
             onLetterLearned={handleLetterLearned}
+            onNavigateToAlphabet26={() => setActiveTab("alphabet26")}
           />
         )}
 
