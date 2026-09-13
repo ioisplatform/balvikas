@@ -326,6 +326,61 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
+      {/* NEW: 2 Premium Interactive Studios - Video Pencil Tracing & 3D Human Anatomy */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card A: Pencil Tracing & Real Video Animation */}
+        <div
+          onClick={() => onNavigate("pencil_tracing")}
+          className="group p-6 bg-gradient-to-br from-sky-50 via-cyan-50 to-blue-50 dark:from-slate-800 dark:to-slate-800/80 rounded-3xl border-2 border-sky-300 dark:border-sky-800/60 hover:border-sky-500 hover:shadow-xl cursor-pointer transition-all space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center text-2xl font-black shadow-md group-hover:scale-110 transition-transform">
+              ✏️
+            </div>
+            <span className="px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-black text-[10px] tracking-wider uppercase">
+              ANIMATION VIDEO LAB
+            </span>
+          </div>
+          <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <span>पेंसिल ट्रेसिंग व रियल वीडियो एनीमेशन</span>
+            <span className="text-xs bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md font-bold">New</span>
+          </h3>
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            A to Z और अ से ज्ञ: असली एनीमेशन वीडियो, स्टेप-बाई-स्टेप पेंसिल स्ट्रोक गाइड और विद्यार्थी डिजिटल अभ्यास स्लेट!
+          </p>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-sky-600 dark:text-sky-400 group-hover:translate-x-1 transition-transform">
+            <span>पेंसिल ट्रेसिंग लैब शुरू करें</span>
+            <ArrowRight className="w-4 h-4" />
+          </span>
+        </div>
+
+        {/* Card B: 3D Human Body Anatomy Lab */}
+        <div
+          onClick={() => onNavigate("body_parts_3d")}
+          className="group p-6 bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800/80 rounded-3xl border-2 border-teal-300 dark:border-teal-800/60 hover:border-teal-500 hover:shadow-xl cursor-pointer transition-all space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center text-2xl font-black shadow-md group-hover:scale-110 transition-transform">
+              🫀
+            </div>
+            <span className="px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 font-black text-[10px] tracking-wider uppercase">
+              3D ANATOMY
+            </span>
+          </div>
+          <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <span>3D मानव शरीर रचना व अंग परिचय</span>
+            <span className="text-xs bg-emerald-400 text-slate-950 px-2 py-0.5 rounded-md font-bold">3D</span>
+          </h3>
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            सिर से पैर तक सभी अंगों के 3D मॉडल, उनके कार्य, हिंदी-अंग्रेजी शुद्ध उच्चारण व रोचक अंग पहचानो क्विज़!
+          </p>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-teal-600 dark:text-teal-400 group-hover:translate-x-1 transition-transform">
+            <span>3D शरीर अंग देखें</span>
+            <ArrowRight className="w-4 h-4" />
+          </span>
+        </div>
+      </div>
+
       {/* Special Highlights: PDF Kit & Services Portal */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Bal Vikas Study Material 48 Pages Card */}

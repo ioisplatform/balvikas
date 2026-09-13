@@ -15,6 +15,9 @@ import { PdfViewerSection } from "./components/PdfViewerSection";
 import { ServicesPortal } from "./components/ServicesPortal";
 import { Alphabet26Section } from "./components/Alphabet26Section";
 import { BalVikasPustikaSection } from "./components/BalVikasPustikaSection";
+import { PencilTracingVideoEngine } from "./components/PencilTracingVideoEngine";
+import { BodyParts3DSection } from "./components/BodyParts3DSection";
+import { ChintuCartoonTeacher } from "./components/ChintuCartoonTeacher";
 import { AuthModal } from "./components/AuthModal";
 import { DeviceSecurityModal } from "./components/DeviceSecurityModal";
 import { AdminPanel } from "./components/AdminPanel";
@@ -365,8 +368,22 @@ export default function App() {
           <BalVikasPustikaSection
             user={user}
             onOpenAuth={(mode) => openAuth(mode || "login")}
+            onOpenDrawingSlate={() => setActiveTab("drawing")}
             language={language}
             soundEnabled={soundEnabled}
+          />
+        )}
+
+        {activeTab === "pencil_tracing" && (
+          <PencilTracingVideoEngine
+            onBackToDashboard={() => setActiveTab("dashboard")}
+            onOpenDrawing={() => setActiveTab("drawing")}
+          />
+        )}
+
+        {activeTab === "body_parts_3d" && (
+          <BodyParts3DSection
+            onBackToDashboard={() => setActiveTab("dashboard")}
           />
         )}
 
@@ -514,6 +531,14 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Live AI Cartoon Teacher (चिंटू सर) */}
+      <ChintuCartoonTeacher
+        currentTab={activeTab}
+        studentName={user?.name || "प्यारे बच्चे"}
+        soundEnabled={soundEnabled}
+        onNavigate={(tab) => setActiveTab(tab)}
+      />
 
       {/* Modals */}
       <AuthModal

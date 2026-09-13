@@ -23,6 +23,8 @@ import {
   Share2,
   Eye,
   PenTool,
+  Lock,
+  ExternalLink,
 } from "lucide-react";
 import {
   BOOK_PARTS,
@@ -41,6 +43,7 @@ interface BalVikasPustikaSectionProps {
   language: "hi" | "en";
   soundEnabled: boolean;
   initialPage?: number;
+  onOpenDrawingSlate?: () => void;
 }
 
 export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
@@ -49,7 +52,43 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
   language,
   soundEnabled,
   initialPage = 1,
+  onOpenDrawingSlate,
 }) => {
+  // STRICT ACCESS LOCK: 700+ page study book is strictly for logged-in users only!
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 p-8 bg-white dark:bg-slate-900 rounded-3xl border-4 border-amber-300 dark:border-amber-700/80 shadow-2xl text-center space-y-6 animate-in fade-in">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shadow-inner">
+          <Lock className="w-10 h-10" />
+        </div>
+        <div className="space-y-2">
+          <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-black">
+            🔒 केवल पंजीकृत सदस्यों के लिए (Members Only Access)
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-amber-400">
+            बाल विकास: 700+ पृष्ठ डिजिटल अध्ययन पुस्तक
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
+            यह विशेष 700+ पृष्ठों की सचित्र अध्ययन पुस्तक केवल पंजीकृत विद्यार्थियों व अभिभावकों के लिए सुरक्षित है। बिना लॉगिन के कोई भी अध्ययन सामग्री प्रदर्शित नहीं की जाती है। कृपया अपने <strong>यूजर ID</strong> व <strong>पासवर्ड</strong> से लॉगिन करें अथवा मात्र ₹10 में नया रजिस्ट्रेशन करें।
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <button
+            onClick={() => onOpenAuth("login")}
+            className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-2xl text-sm shadow-md transition-transform active:scale-95"
+          >
+            सदस्य लॉगिन करें (Member Login)
+          </button>
+          <button
+            onClick={() => onOpenAuth("register")}
+            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-black rounded-2xl text-sm shadow-md transition-transform active:scale-95"
+          >
+            नया रजिस्ट्रेशन करें (मात्र ₹10)
+          </button>
+        </div>
+      </div>
+    );
+  }
   const [currentPageNum, setCurrentPageNum] = useState<number>(() => {
     try {
       const saved = localStorage.getItem("iois_bal_vikas_last_page");
@@ -428,6 +467,19 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
 
           {/* Quick Page Jump & Navigation Controls */}
           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
+            {/* Dedicated Slate Button */}
+            {onOpenDrawingSlate && (
+              <button
+                type="button"
+                onClick={onOpenDrawingSlate}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs flex items-center gap-1.5 transition-transform active:scale-95 shadow-md"
+                title="अलग पेज पर डिजिटल स्लेट खोलें"
+              >
+                <PenTool className="w-4 h-4" />
+                <span>✍️ डिजिटल स्लेट (Dedicated Slate)</span>
+              </button>
+            )}
+
             {/* Table of Contents Button */}
             <button
               type="button"
@@ -548,21 +600,19 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
         </div>
       </div>
 
-      {/* Main Interactive Book Canvas & Stage Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left / Center: The Digital Workbook Page (A4 Aspect Ratio Paper Look) */}
-        <div className="lg:col-span-9 space-y-4">
-          {/* The Page Container Card */}
-          <div
-            ref={containerRef}
-            className="relative bg-[#FFFDF5] dark:bg-slate-900 rounded-3xl border-4 border-amber-200 dark:border-slate-800 shadow-2xl overflow-hidden min-h-[720px] select-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(#FDE68A 1px, transparent 1px), radial-gradient(#FDE68A 1px, #FFFDF5 1px)",
-              backgroundSize: "28px 28px",
-              backgroundPosition: "0 0, 14px 14px",
-            }}
-          >
+      {/* Main Study Book Container - Clean, attractive, reading-focused layout */}
+      <div className="w-full max-w-4xl mx-auto space-y-6">
+        {/* The Page Container Card */}
+        <div
+          ref={containerRef}
+          className="relative bg-[#FFFDF5] dark:bg-slate-900 rounded-3xl border-4 border-amber-200 dark:border-slate-800 shadow-2xl overflow-hidden min-h-[720px] select-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(#FDE68A 1px, transparent 1px), radial-gradient(#FDE68A 1px, #FFFDF5 1px)",
+            backgroundSize: "28px 28px",
+            backgroundPosition: "0 0, 14px 14px",
+          }}
+        >
             {/* Top Page Running Header with Branding */}
             <div className="p-4 sm:p-5 border-b-2 border-amber-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-amber-100/60 dark:bg-slate-800/60">
               <div className="flex items-center gap-2">
@@ -1175,195 +1225,49 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               )}
             </div>
 
-            {/* THE TRANSPARENT INTERACTIVE CANVAS OVERLAY FOR DRAWING/WRITING */}
-            <canvas
-              ref={canvasRef}
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
-              className="absolute inset-0 z-20 cursor-crosshair touch-none"
-            />
           </div>
 
-          {/* Star Reward Banner Pop-in */}
-          {rewardStars && (
-            <div className="p-4 bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 text-slate-950 rounded-2xl shadow-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2">
-              <div className="flex items-center gap-3">
-                <div className="flex text-amber-950">
-                  {Array.from({ length: rewardStars }).map((_, i) => (
-                    <Star key={i} className="w-6 h-6 fill-current text-yellow-100" />
-                  ))}
-                </div>
-                <div className="font-black text-sm">{rewardMessage}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setRewardStars(null)}
-                className="px-3 py-1 rounded-xl bg-slate-900 text-white font-bold text-xs"
-              >
-                धन्यवाद!
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Floating Toolbox (Colors, Pen, Brush, Eraser, Check & Save) */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-amber-200 dark:border-slate-800 shadow-xl p-4 sm:p-5 space-y-5 sticky top-24">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h4 className="font-black text-sm text-slate-800 dark:text-amber-400 flex items-center gap-2">
-                <Palette className="w-4 h-4 text-orange-500" />
-                <span>ड्राइंग & होमवर्क टूल्स</span>
-              </h4>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                सक्रिय
-              </span>
-            </div>
-
-            {/* Tool Selection */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-slate-500 mb-2">
-                टूल्स चुनें (Tool Mode):
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setToolMode("pencil")}
-                  className={`p-2.5 rounded-xl font-bold text-xs flex items-center gap-2 border transition-all ${
-                    toolMode === "pencil"
-                      ? "bg-amber-500 text-slate-950 border-amber-600 shadow"
-                      : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
-                  }`}
-                >
-                  <PenTool className="w-3.5 h-3.5" />
-                  <span>पेंसिल (Pencil)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setToolMode("brush")}
-                  className={`p-2.5 rounded-xl font-bold text-xs flex items-center gap-2 border transition-all ${
-                    toolMode === "brush"
-                      ? "bg-amber-500 text-slate-950 border-amber-600 shadow"
-                      : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
-                  }`}
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>ब्रश (Brush)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setToolMode("eraser")}
-                  className={`p-2.5 rounded-xl font-bold text-xs flex items-center gap-2 border transition-all ${
-                    toolMode === "eraser"
-                      ? "bg-amber-500 text-slate-950 border-amber-600 shadow"
-                      : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
-                  }`}
-                >
-                  <Eraser className="w-3.5 h-3.5" />
-                  <span>इरेज़र (Eraser)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={clearCanvas}
-                  className="p-2.5 rounded-xl font-bold text-xs flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors"
-                  title="पूरा पन्ना साफ करें"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>साफ़ करें</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Color Palette */}
-            <div>
-              <label className="block text-[11px] font-extrabold text-slate-500 mb-2">
-                स्याही / रंग चुनें (Color Palette):
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c.hex}
-                    type="button"
-                    onClick={() => {
-                      setBrushColor(c.hex);
-                      if (toolMode === "eraser") setToolMode("pencil");
-                    }}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-transform ${
-                      brushColor === c.hex && toolMode !== "eraser"
-                        ? "scale-110 ring-2 ring-offset-2 ring-amber-500 shadow-md"
-                        : "hover:scale-105"
-                    }`}
-                    style={{ backgroundColor: c.hex }}
-                    title={c.label}
-                  >
-                    {brushColor === c.hex && toolMode !== "eraser" && (
-                      <span className="w-2 h-2 rounded-full bg-white shadow" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Brush Size Slider */}
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-extrabold text-slate-500 mb-1">
-                <span>ब्रश मोटाई (Thickness):</span>
-                <span>{brushSize}px</span>
-              </div>
-              <input
-                type="range"
-                min={2}
-                max={20}
-                value={brushSize}
-                onChange={(e) => setBrushSize(parseInt(e.target.value, 10))}
-                className="w-full accent-amber-500"
-              />
-            </div>
-
-            {/* Undo Button */}
+          {/* Clean Page Footer Navigation Bar (No drawing clutter) */}
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-amber-200 dark:border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
-              onClick={handleUndo}
-              disabled={undoStack.length === 0}
-              className="w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 disabled:opacity-40 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5"
+              onClick={goToPreviousPage}
+              disabled={currentPageNum <= 1}
+              className="px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-black text-xs hover:bg-amber-100 dark:hover:bg-slate-700 disabled:opacity-40 flex items-center gap-2 border border-amber-200 dark:border-slate-700 transition-colors"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>पिछला कदम वापस लें (Undo)</span>
+              <ChevronLeft className="w-4 h-4" />
+              <span>पिछला पृष्ठ (Previous)</span>
             </button>
 
-            {/* Check Homework & Reward Button */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-              <button
-                type="button"
-                onClick={handleCheckHomework}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transform active:scale-95 transition-all"
-              >
-                <Sparkles className="w-5 h-5 text-yellow-200" />
-                <span>⭐ होमवर्क चेक करें (Get Stars)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDownloadHomework}
-                className="w-full py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold text-xs flex items-center justify-center gap-1.5"
-                title="बच्चे के लिखे हुए पेज को फोटो के रूप में सेव करें"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>होमवर्क डाउनलोड करें (Save PNG)</span>
-              </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-amber-200">
+                पृष्ठ {currentPageNum} / {TOTAL_PAGES}
+              </span>
+              {onOpenDrawingSlate && (
+                <button
+                  type="button"
+                  onClick={onOpenDrawingSlate}
+                  className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-transform active:scale-95"
+                >
+                  <PenTool className="w-4 h-4" />
+                  <span>✍️ अलग डिजिटल स्लेट पर अभ्यास करें (Open Slate)</span>
+                </button>
+              )}
             </div>
+
+            <button
+              type="button"
+              onClick={goToNextPage}
+              disabled={currentPageNum >= TOTAL_PAGES}
+              className="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs disabled:opacity-40 flex items-center gap-2 shadow-lg shadow-amber-500/30 transition-transform active:scale-95"
+            >
+              <span>अगला पृष्ठ (Next)</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Table of Contents Modal Drawer */}
+        {/* Table of Contents Modal Drawer */}
       {isTocOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
           <div className="relative max-w-3xl w-full max-h-[85vh] bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-amber-200 dark:border-slate-800 flex flex-col">

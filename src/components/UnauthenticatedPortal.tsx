@@ -256,7 +256,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               <span>रजिस्ट्रेशन / Join Now</span>
             </button>
 
-            {/* 2.5 बाल विकास पुस्तिका (700+ पृष्ठ) */}
+            {/* 2.5 बाल विकास पुस्तिका (700+ पृष्ठ - Login Required) */}
             <button
               onClick={() => {
                 setActiveTab("bal_vikas_pustika");
@@ -269,8 +269,8 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
                   : "text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>📘 बाल विकास पुस्तिका (700+ पृष्ठ)</span>
+              <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>🔒 700+ पृष्ठ अध्ययन पुस्तक (Login Required)</span>
             </button>
 
             {/* 3. बाल गुरु AI */}
@@ -521,31 +521,37 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
           </div>
         )}
 
-        {/* TAB 2.5: BAL VIKAS PUSTIKA (700+ Pages Workbook & E-Book Preview) */}
+        {/* TAB 2.5: BAL VIKAS PUSTIKA (700+ Pages Workbook - STRICT LOGIN WALL) */}
         {activeTab === "bal_vikas_pustika" && (
-          <div className="flex-1 w-full space-y-4">
-            {/* Top Registration Callout Banner */}
-            <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-white shrink-0" />
-                <span>
-                  <strong>बाल विकास सम्पूर्ण अध्ययन पुस्तिका (720 पृष्ठ)</strong>: यहाँ आप सभी पृष्ठ पढ़ सकते हैं, डिजिटल पेन से स्क्रीन पर लिख सकते हैं और होमवर्क कर सकते हैं! अपनी स्थायी विद्यार्थी आईडी व प्रगति सुरक्षित रखने हेतु मात्र ₹10 में रजिस्ट्रेशन करें।
-                </span>
-              </div>
+          <div className="flex-1 w-full max-w-2xl mx-auto my-6 p-8 bg-white dark:bg-slate-900 rounded-3xl border-4 border-amber-300 dark:border-amber-700 shadow-2xl text-center space-y-6 animate-in fade-in">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center shadow-inner">
+              <Lock className="w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-black">
+                🔒 केवल पंजीकृत सदस्यों के लिए सुरक्षित (Login Required)
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-amber-400">
+                बाल विकास: 700+ पृष्ठ सम्पूर्ण डिजिटल पुस्तक
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                यह विशेष 700+ पृष्ठों की सचित्र अध्ययन पुस्तक केवल पंजीकृत विद्यार्थियों व अभिभावकों के लिए सुरक्षित है। बिना लॉगिन के कोई भी अध्ययन सामग्री या पृष्ठ प्रदर्शित नहीं किए जाते हैं। कृपया अपनी स्थायी यूजर ID से लॉगिन करें या मात्र ₹10 में नया रजिस्ट्रेशन करें।
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setActiveTab("login")}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-2xl text-sm shadow-md transition-transform active:scale-95"
+              >
+                सदस्य लॉगिन करें (Member Login)
+              </button>
               <button
                 onClick={() => setActiveTab("register")}
-                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black shrink-0 hover:bg-slate-800 shadow"
+                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-black rounded-2xl text-sm shadow-md transition-transform active:scale-95"
               >
-                नया रजिस्ट्रेशन (₹10)
+                नया रजिस्ट्रेशन करें (मात्र ₹10)
               </button>
             </div>
-
-            <BalVikasPustikaSection
-              user={null}
-              onOpenAuth={() => setActiveTab("login")}
-              language={language}
-              soundEnabled={soundEnabled}
-            />
           </div>
         )}
 
