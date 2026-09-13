@@ -14,6 +14,9 @@ import {
   ArrowRight,
   Sparkles,
   Info,
+  Copy,
+  Check,
+  CreditCard,
 } from "lucide-react";
 import { UserProfile, StudentProgress } from "../types";
 import { IOIS_PLANS } from "../data/learningData";
@@ -64,6 +67,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState("bal_vikas_10");
   const [referralCode, setReferralCode] = useState("IOISVIP");
+  const [sponsorId, setSponsorId] = useState("IOIS999VK01");
+  const [payoutUpi, setPayoutUpi] = useState("");
+  const [utrNumber, setUtrNumber] = useState("");
+  const [copiedUpi, setCopiedUpi] = useState(false);
   const [regGrade, setRegGrade] = useState("Class 1");
 
   // Forgot password form state
@@ -249,6 +256,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       return;
     }
 
+    if (!payoutUpi.trim()) {
+      setErrorMessage(language === "hi" ? "कृपया अपना UPI ID / Payment Received Address दर्ज करें ताकि आपको 70% पेआउट मिल सके।" : "Please enter your UPI ID for receiving payouts.");
+      return;
+    }
+
     setLoading(true);
     try {
       let registeredUser: UserProfile | null = null;
@@ -267,6 +279,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             planName: currentPlan.name,
             planPrice: currentPlan.price,
             referralCode,
+            sponsorId: sponsorId.trim() || "IOIS999VK01",
+            payoutUpi: payoutUpi.trim(),
+            utrNumber: utrNumber.trim(),
             classGrade: regGrade,
           }),
         });
@@ -301,7 +316,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           planPrice: currentPlan.price,
           referralCode,
           classGrade: regGrade,
-          sponsorId: "IOIS999VK01",
+          sponsorId: sponsorId.trim() || "IOIS999VK01",
           city: "Bihar",
           designation: "Verified Member",
           paymentStatus: "verified",
@@ -799,18 +814,104 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              {/* Referral Code */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  रेफरल कोड (वैकल्पिक)
-                </label>
-                <input
-                  type="text"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  placeholder="IOISVIP"
-                  className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono uppercase"
-                />
+              {/* Sponsor ID & Referral Code */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                    <span>स्पॉन्सर ID (Sponsor ID) *</span>
+                    <span className="text-[10px] text-amber-600 font-normal">अनिवार्य</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={sponsorId}
+                    onChange={(e) => setSponsorId(e.target.value.toUpperCase())}
+                    placeholder="IOIS999VK01"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-amber-300 dark:border-amber-700/80 bg-amber-50/40 dark:bg-slate-800 font-mono font-bold uppercase text-amber-900 dark:text-amber-300"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-0.5">डिफ़ॉल्ट स्पॉन्सर: IOIS999VK01</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    रेफरल कोड (वैकल्पिक)
+                  </label>
+                  <input
+                    type="text"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    placeholder="IOISVIP"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono uppercase"
+                  />
+                </div>
+              </div>
+
+              {/* Official UPI Payment Box */}
+              <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-850 rounded-xl border border-amber-200 dark:border-slate-700 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300">
+                    <CreditCard className="w-4 h-4 text-amber-600" />
+                    <span>आधिकारिक UPI पेमेंट विवरण (Vikas Kumar)</span>
+                  </div>
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">VERIFIED</span>
+                </div>
+
+                <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-amber-200 dark:border-slate-750 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="text-[10px] text-slate-500">आधिकारिक UPI ID:</div>
+                      <div className="font-mono text-sm font-black text-amber-900 dark:text-amber-200">8877490845@spicepay</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText("8877490845@spicepay");
+                        setCopiedUpi(true);
+                        setTimeout(() => setCopiedUpi(false), 2000);
+                      }}
+                      className="px-2.5 py-1 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-md flex items-center gap-1 shadow-xs"
+                    >
+                      {copiedUpi ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedUpi ? "कॉपी हुआ" : "UPI कॉपी"}
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-1.5">
+                    <span>प्राप्तकर्ता: <strong>Vikas Kumar</strong></span>
+                    <span>व्हाट्सएप: <strong>+91 8877490845</strong></span>
+                  </div>
+                </div>
+
+                {/* Payout UPI & UTR Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      पेमेंट रिसीव करने का UPI ID *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutUpi}
+                      onChange={(e) => setPayoutUpi(e.target.value)}
+                      placeholder="आपका-upi@paytm"
+                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono"
+                    />
+                    <p className="text-[9px] text-emerald-600 dark:text-emerald-400 mt-0.5">70% पेआउट व कमाई यहीं भेजी जाएगी</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      UTR / Transaction Ref No.
+                    </label>
+                    <input
+                      type="text"
+                      value={utrNumber}
+                      onChange={(e) => setUtrNumber(e.target.value)}
+                      placeholder="12-अंकों का UTR नंबर"
+                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono"
+                    />
+                    <p className="text-[9px] text-slate-500 mt-0.5">भुगतान सत्यापन हेतु</p>
+                  </div>
+                </div>
               </div>
 
               <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-[11px] text-slate-500 space-y-1">

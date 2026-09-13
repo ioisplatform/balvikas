@@ -36,6 +36,7 @@ import { IOIS_PLANS } from "../data/learningData";
 import { AiChatbot } from "./AiChatbot";
 import { ServicesPortal } from "./ServicesPortal";
 import { BalVikasPustikaSection } from "./BalVikasPustikaSection";
+import { RegistrationSection } from "./RegistrationSection";
 
 interface UnauthenticatedPortalProps {
   onSuccessLogin: (user: UserProfile) => void;
@@ -238,7 +239,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               <span>सदस्य लॉगिन</span>
             </button>
 
-            {/* 2. नया रजिस्ट्रेशन */}
+            {/* 2. नया रजिस्ट्रेशन / Join Now */}
             <button
               onClick={() => {
                 setActiveTab("register");
@@ -252,7 +253,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-orange-600 dark:text-orange-300" />
-              <span>नया रजिस्ट्रेशन (₹10)</span>
+              <span>रजिस्ट्रेशन / Join Now</span>
             </button>
 
             {/* 2.5 बाल विकास पुस्तिका (700+ पृष्ठ) */}
@@ -450,22 +451,25 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
 
                 {/* Switch to Registration */}
                 <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center space-y-3">
-                  <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-800/60 text-left flex items-center justify-between">
+                  <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 rounded-2xl border-2 border-amber-300 dark:border-amber-700 text-left flex items-center justify-between">
                     <div>
                       <span className="text-xs font-black text-slate-900 dark:text-amber-200 block">
-                        नया विद्यार्थी या अभिभावक?
+                        नया सदस्य या विद्यार्थी?
                       </span>
                       <span className="text-[11px] text-slate-600 dark:text-slate-400 block">
-                        मात्र ₹10 में 48 पृष्ठ डिजिटल किट व ID कार्ड पाएं
+                        डायरेक्ट इन-ऐप फॉर्म, 25MB+ प्रूफ अपलोड व ऑटो-जनरेटेड यूनिक ID
                       </span>
                     </div>
                     <button
                       type="button"
-                      onClick={() => setActiveTab("register")}
-                      className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 flex items-center gap-1 shadow"
+                      onClick={() => {
+                        setActiveTab("register");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0 flex items-center gap-1 shadow-md transition-transform active:scale-95"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>नया रजिस्ट्रेशन</span>
+                      <span>रजिस्ट्रेशन / Join Now</span>
                     </button>
                   </div>
 
@@ -490,254 +494,30 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
           </div>
         )}
 
-        {/* TAB 2: NEW REGISTRATION */}
+        {/* TAB 2: OFFICIAL IN-APP REGISTRATION & JOIN NOW */}
         {activeTab === "register" && (
-          <div className="flex-1 max-w-2xl mx-auto w-full py-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 p-6 text-white text-center">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/20 text-amber-200 text-xs font-bold uppercase tracking-wider mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-                  <span>नया विद्यार्थी / सदस्य रजिस्ट्रेशन</span>
-                </div>
-                <h1 className="text-xl sm:text-2xl font-black">IOIS बाल विकास डिजिटल किट</h1>
-                <p className="text-xs text-amber-100 mt-1 max-w-md mx-auto">
-                  मात्र ₹10 में प्राथमिक शिक्षा (NCERT कक्षा 1 से 5) की संपूर्ण 48 पृष्ठ सचित्र सामग्री, मनोहर पोथी, गुड इंग्लिश व डिजिटल ID कार्ड प्राप्त करें।
-                </p>
-              </div>
-
-              <div className="p-6">
-                {errorMessage && (
-                  <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{errorMessage}</span>
-                  </div>
-                )}
-
-                {successMessage && (
-                  <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>{successMessage}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                  {/* Highlighted ₹10 Plan Card */}
-                  <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border-2 border-amber-400 dark:border-amber-600/80">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xs uppercase font-extrabold text-amber-800 dark:text-amber-300 block">
-                          प्राथमिक शिक्षा बेसिक किट (Class 1-5)
-                        </span>
-                        <h2 className="text-base font-black text-slate-900 dark:text-white">
-                          48 पृष्ठ सम्पूर्ण अध्ययन किट
-                        </h2>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-2xl font-black text-amber-600 dark:text-amber-400">₹10</span>
-                        <span className="text-[10px] text-slate-500 block">एकमुश्त सदस्यता</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-1.5 mt-2.5 pt-2.5 border-t border-amber-200/80 dark:border-amber-800/50 text-[11px] text-slate-700 dark:text-slate-300">
-                      <span className="flex items-center gap-1">✓ 48 पृष्ठ सचित्र किट</span>
-                      <span className="flex items-center gap-1">✓ हिंदी मनोहर पोथी</span>
-                      <span className="flex items-center gap-1">✓ गुड इंग्लिश व वोकैब</span>
-                      <span className="flex items-center gap-1">✓ 1-100 गिनती व पहाड़े</span>
-                      <span className="flex items-center gap-1">✓ डिजिटल स्टूडेंट ID कार्ड</span>
-                      <span className="flex items-center gap-1">✓ शुद्ध ऑडियो उच्चारण</span>
-                    </div>
-
-                    {/* Plan Selector if higher plan desired */}
-                    <div className="mt-3 pt-2 border-t border-amber-200/50 flex items-center justify-between text-xs">
-                      <label className="text-slate-600 dark:text-slate-400 font-semibold">
-                        अन्य प्लान चुनें:
-                      </label>
-                      <select
-                        value={selectedPlanId}
-                        onChange={(e) => setSelectedPlanId(e.target.value)}
-                        className="px-2 py-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg text-xs font-bold"
-                      >
-                        {IOIS_PLANS.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            ₹{plan.price} - {plan.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Student Details Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        विद्यार्थी का नाम *
-                      </label>
-                      <div className="relative">
-                        <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                          type="text"
-                          required
-                          value={regName}
-                          onChange={(e) => setRegName(e.target.value)}
-                          placeholder="विद्यार्थी का नाम दर्ज करें"
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        मोबाइल नंबर *
-                      </label>
-                      <div className="relative">
-                        <Smartphone className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                          type="tel"
-                          required
-                          maxLength={10}
-                          value={regMobile}
-                          onChange={(e) => setRegMobile(e.target.value)}
-                          placeholder="10 अंकों का मोबाइल नंबर"
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        ईमेल आईडी (वैकल्पिक)
-                      </label>
-                      <div className="relative">
-                        <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                          type="email"
-                          value={regEmail}
-                          onChange={(e) => setRegEmail(e.target.value)}
-                          placeholder="email@example.com"
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        कक्षा (Class Grade)
-                      </label>
-                      <select
-                        value={regGrade}
-                        onChange={(e) => setRegGrade(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none"
-                      >
-                        <option value="Class 1">कक्षा 1 (Class 1)</option>
-                        <option value="Class 2">कक्षा 2 (Class 2)</option>
-                        <option value="Class 3">कक्षा 3 (Class 3)</option>
-                        <option value="Class 4">कक्षा 4 (Class 4)</option>
-                        <option value="Class 5">कक्षा 5 (Class 5)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        पासवर्ड बनाएं *
-                      </label>
-                      <div className="relative">
-                        <KeyRound className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                          type="password"
-                          required
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          placeholder="न्यूनतम 4 अक्षर"
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        पासवर्ड की पुष्टि करें *
-                      </label>
-                      <div className="relative">
-                        <KeyRound className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                          type="password"
-                          required
-                          value={regConfirmPassword}
-                          onChange={(e) => setRegConfirmPassword(e.target.value)}
-                          placeholder="वही पासवर्ड दोबारा लिखें"
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment & Sponsor Details */}
-                  <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <span>स्पॉन्सर / रेफरल आईडी:</span>
-                      <span className="font-mono text-amber-600 font-bold">{sponsorId}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-700">
-                      <span>UPI भुगतान पता:</span>
-                      <span className="font-mono font-bold text-emerald-600">ioisplatform@okaxis</span>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        12 अंकों का UTR / Transaction No. (वैकल्पिक)
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={16}
-                        value={utrNumber}
-                        onChange={(e) => setUtrNumber(e.target.value)}
-                        placeholder="उदा: 423987654321"
-                        className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-mono font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <span>पंजीकरण हो रहा है...</span>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        <span>पंजीकरण पूरा करें (Get Digital ID)</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-
-                  <div className="text-center pt-1">
-                    <span className="text-xs text-slate-500">पहले से खाता है? </span>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("login")}
-                      className="text-xs font-black text-amber-600 dark:text-amber-400 hover:underline"
-                    >
-                      सदस्य लॉगिन करें
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Bottom Security Footer */}
-              <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>सुरक्षित SSL 256-बिट एन्क्रिप्टेड पोर्टल</span>
-                </span>
-                <span className="font-mono font-bold text-amber-600">
-                  हेल्पलाइन: +91 8877490845
-                </span>
-              </div>
-            </div>
+          <div className="flex-1 w-full">
+            <RegistrationSection
+              onSuccessLogin={(user) => {
+                onSuccessLogin(user);
+              }}
+              onNavigateToLogin={() => {
+                setActiveTab("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onNavigateToHome={() => {
+                setActiveTab("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onNavigateToTab={(tab) => {
+                if (tab === "bal_vikas_pustika") setActiveTab("bal_vikas_pustika");
+                else if (tab === "chatbot" || tab === "bal_guru") setActiveTab("bal_guru");
+                else if (tab === "services" || tab === "plans" || tab === "gov" || tab === "helpline") setActiveTab("official_page");
+                else setActiveTab("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenAdmin={onOpenAdmin}
+            />
           </div>
         )}
 
