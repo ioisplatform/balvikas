@@ -1,0 +1,101 @@
+[
+  {
+    "uniqueId": "IOIS10RK01",
+    "name": "Rahul Kumar",
+    "email": "rahul@iois.in",
+    "mobile": "9876543210",
+    "password": "Password@123",
+    "planId": "bal_vikas_10",
+    "planName": "Bal Vikas Access (Class 1-5)",
+    "planPrice": 10,
+    "referralCode": "IOISVIP",
+    "sponsorId": "IOIS999VK01",
+    "city": "Patna, Bihar",
+    "designation": "Verified Elite Member",
+    "utrNumber": "423987654321",
+    "payoutUpi": "9876543210@paytm",
+    "paymentStatus": "verified",
+    "referralEarnings": 21,
+    "twoFactorEnabled": false,
+    "registeredAt": "2026-09-12T11:18:54.725Z",
+    "devices": [
+      {
+        "id": "dev_1",
+        "deviceName": "Chrome on Android Mobile",
+        "browser": "Chrome Mobile 120",
+        "ip": "103.21.244.1",
+        "lastActive": "2026-09-12T11:18:54.725Z"
+      }
+    ],
+    "progress": {
+      "hindiProgress": 45,
+      "englishProgress": 60,
+      "mathProgress": 50,
+      "drawingCount": 3,
+      "quizzesCompleted": 8,
+      "quizAccuracy": 88,
+      "studyTimeMinutes": 120,
+      "streakDays": 4,
+      "badges": [
+        "badge_starter",
+        "badge_varnamala",
+        "badge_math_star"
+      ],
+      "savedDrawings": [],
+      "classGrade": "Class 2"
+    }
+  },
+  {
+    "uniqueId": "IOIS10AS01",
+    "name": "Amit Sharma",
+    "email": "amit.sharma@example.com",
+    "mobile": "9123456789",
+    "password": "AmitPassword@123",
+    "planId": "bal_vikas_10",
+    "planName": "Bal Vikas Access (Class 1-5)",
+    "planPrice": 10,
+    "referralCode": "",
+    "sponsorId": "IOIS999VK01",
+    "city": "",
+    "designation": "Member",
+    "utrNumber": "UTR998877665544",
+    "payoutUpi": "",
+    "paymentStatus": "verified",
+    "paymentScreenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "photoUrl": "",
+    "referralEarnings": 0,
+    "twoFactorEnabled": false,
+    "registeredAt": "2026-09-12T11:55:34.652Z",
+    "devices": [
+      {
+        "id": "dev_1789214134652",
+        "deviceName": "Desktop Computer",
+        "browser": "node",
+        "ip": "127.0.0.1",
+        "lastActive": "2026-09-12T11:55:34.653Z"
+      },
+      {
+        "id": "dev_1789214153684",
+        "deviceName": "Desktop Browser",
+        "browser": "node",
+        "ip": "127.0.0.1",
+        "lastActive": "2026-09-12T11:55:53.684Z"
+      }
+    ],
+    "progress": {
+      "hindiProgress": 0,
+      "englishProgress": 0,
+      "mathProgress": 0,
+      "drawingCount": 0,
+      "quizzesCompleted": 0,
+      "quizAccuracy": 100,
+      "studyTimeMinutes": 0,
+      "streakDays": 1,
+      "badges": [
+        "badge_starter"
+      ],
+      "savedDrawings": [],
+      "classGrade": "Class 3"
+    }
+  }
+]

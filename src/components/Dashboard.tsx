@@ -72,10 +72,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* Action Row */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
+              onClick={() => onNavigate("bal_vikas_pustika")}
+              className="px-5 py-3 bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-400 text-slate-950 font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-2 border-2 border-white/50"
+            >
+              <span>📘 बाल विकास पुस्तिका (700+ पृष्ठ वर्कबुक)</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => onNavigate("alphabet26")}
               className="px-5 py-2.5 bg-yellow-400 text-slate-950 font-black rounded-2xl shadow-lg hover:bg-yellow-300 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-2"
             >
-              <span>🔤 A से Z 26 पृष्ठ (Rhymes & AI Art)</span>
+              <span>🔤 A से Z 26 पृष्ठ</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -271,6 +278,51 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span>गिनती व पहाड़े देखें</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </span>
+        </div>
+      </div>
+
+      {/* Featured Master Highlight: 700+ Pages Bal Vikas Pustika E-Book & Workbook */}
+      <div
+        onClick={() => onNavigate("bal_vikas_pustika")}
+        className="group relative overflow-hidden p-6 sm:p-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-3xl text-white shadow-2xl hover:shadow-orange-500/20 cursor-pointer transition-all hover:scale-[1.01] border-4 border-amber-300 dark:border-amber-500"
+      >
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-black uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-yellow-300" />
+              <span>नया विशेष संस्करण • 720 पृष्ठ संपूर्ण डिजिटल वर्कबुक</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white">
+              बाल विकास सम्पूर्ण अध्ययन पुस्तिका (पढ़े, लिखे & होमवर्क करे)
+            </h2>
+
+            <p className="text-amber-100 text-xs sm:text-sm leading-relaxed">
+              700 से अधिक पृष्ठों का सुव्यवस्थित पाठ्यक्रम: A to Z फोनिक्स, हिंदी स्वर व व्यंजन (क से ज्ञ), बारहखड़ी, 1-100 गिनती, 2-40 पहाड़ा, जोड़-घटाव, बाल कविताएं, कहानियां, डिजिटल पेन से स्क्रीन पर ट्रेसिंग, होमवर्क सेविंग, ⭐ स्टार्स व आधिकारिक प्रमाण-पत्र!
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-bold">
+              <span className="bg-white/20 px-2.5 py-1 rounded-lg">✓ डिजिटल पेंसिल व ब्रश</span>
+              <span className="bg-white/20 px-2.5 py-1 rounded-lg">✓ होमवर्क चेक & स्टार्स</span>
+              <span className="bg-white/20 px-2.5 py-1 rounded-lg">✓ A4 प्रिंट & PNG डाउनलोड</span>
+              <span className="bg-white/20 px-2.5 py-1 rounded-lg">✓ ऑडियो उच्चारण</span>
+            </div>
+          </div>
+
+          <div className="shrink-0">
+            <button
+              type="button"
+              className="px-6 py-3.5 bg-yellow-400 text-slate-950 font-black rounded-2xl shadow-xl hover:bg-yellow-300 active:scale-95 transition-all text-sm flex items-center gap-2 group-hover:scale-105"
+            >
+              <span>पुस्तिका खोलें (700+ पृष्ठ)</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Background icon watermark */}
+        <div className="absolute -bottom-8 -right-8 text-9xl opacity-15 pointer-events-none select-none">
+          📘
         </div>
       </div>
 

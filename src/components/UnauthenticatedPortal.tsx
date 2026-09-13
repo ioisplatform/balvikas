@@ -35,6 +35,7 @@ import { IOISRunningHeader } from "./IOISRunningHeader";
 import { IOIS_PLANS } from "../data/learningData";
 import { AiChatbot } from "./AiChatbot";
 import { ServicesPortal } from "./ServicesPortal";
+import { BalVikasPustikaSection } from "./BalVikasPustikaSection";
 
 interface UnauthenticatedPortalProps {
   onSuccessLogin: (user: UserProfile) => void;
@@ -47,7 +48,7 @@ interface UnauthenticatedPortalProps {
   setSoundEnabled?: (sound: boolean) => void;
 }
 
-type PortalTab = "login" | "register" | "bal_guru" | "official_page" | "forgot";
+type PortalTab = "login" | "register" | "bal_vikas_pustika" | "bal_guru" | "official_page" | "forgot";
 
 export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
   onSuccessLogin,
@@ -252,6 +253,23 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-orange-600 dark:text-orange-300" />
               <span>नया रजिस्ट्रेशन (₹10)</span>
+            </button>
+
+            {/* 2.5 बाल विकास पुस्तिका (700+ पृष्ठ) */}
+            <button
+              onClick={() => {
+                setActiveTab("bal_vikas_pustika");
+                setErrorMessage("");
+                setSuccessMessage("");
+              }}
+              className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === "bal_vikas_pustika"
+                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>📘 बाल विकास पुस्तिका (700+ पृष्ठ)</span>
             </button>
 
             {/* 3. बाल गुरु AI */}
@@ -720,6 +738,34 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
                 </span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* TAB 2.5: BAL VIKAS PUSTIKA (700+ Pages Workbook & E-Book Preview) */}
+        {activeTab === "bal_vikas_pustika" && (
+          <div className="flex-1 w-full space-y-4">
+            {/* Top Registration Callout Banner */}
+            <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-white shrink-0" />
+                <span>
+                  <strong>बाल विकास सम्पूर्ण अध्ययन पुस्तिका (720 पृष्ठ)</strong>: यहाँ आप सभी पृष्ठ पढ़ सकते हैं, डिजिटल पेन से स्क्रीन पर लिख सकते हैं और होमवर्क कर सकते हैं! अपनी स्थायी विद्यार्थी आईडी व प्रगति सुरक्षित रखने हेतु मात्र ₹10 में रजिस्ट्रेशन करें।
+                </span>
+              </div>
+              <button
+                onClick={() => setActiveTab("register")}
+                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black shrink-0 hover:bg-slate-800 shadow"
+              >
+                नया रजिस्ट्रेशन (₹10)
+              </button>
+            </div>
+
+            <BalVikasPustikaSection
+              user={null}
+              onOpenAuth={() => setActiveTab("login")}
+              language={language}
+              soundEnabled={soundEnabled}
+            />
           </div>
         )}
 

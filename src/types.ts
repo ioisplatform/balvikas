@@ -56,6 +56,7 @@ export interface UserProfile {
   utrNumber?: string;
   payoutUpi?: string;
   paymentStatus?: "pending" | "approved" | "verified";
+  paymentScreenshot?: string;
   photoUrl?: string;
   referralEarnings: number;
   twoFactorEnabled: boolean;
@@ -189,6 +190,8 @@ export interface AdminOverview {
     officialWhatsapp: string;
     sponsorDefaultId: string;
     systemNotice?: string;
+    googleSheetsWebhookUrl?: string;
+    googleSheetsAutoSync?: boolean;
   };
   services?: PlatformService[];
   users: Array<{
@@ -207,6 +210,7 @@ export interface AdminOverview {
     designation?: string;
     utrNumber?: string;
     payoutUpi?: string;
+    paymentScreenshot?: string;
     paymentStatus?: "pending" | "approved" | "verified";
     referralEarnings?: number;
     twoFactorEnabled: boolean;

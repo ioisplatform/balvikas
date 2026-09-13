@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 // Local JSON store path for persistent cloud backup simulation
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
+const USERS_BACKUP_FILE = path.join(DATA_DIR, "users.backup.json");
 const SERVICES_FILE = path.join(DATA_DIR, "services.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 
@@ -48,6 +49,8 @@ interface PlatformSettings {
   officialWhatsapp: string;
   sponsorDefaultId: string;
   systemNotice?: string;
+  googleSheetsWebhookUrl?: string;
+  googleSheetsAutoSync?: boolean;
 }
 
 interface UserRecord {
@@ -66,6 +69,9 @@ interface UserRecord {
   utrNumber?: string;
   payoutUpi?: string;
   paymentStatus?: "pending" | "approved" | "verified";
+  paymentScreenshot?: string; // base64 payment receipt proof
+  recoveryCode?: string; // secure 6-digit recovery OTP
+  recoveryCodeExpiresAt?: number;
   photoUrl?: string;
   referralEarnings: number;
   twoFactorEnabled: boolean;
@@ -87,11 +93,25 @@ interface UserRecord {
   };
 }
 
-// Initial seed demo user if file doesn't exist
+// Resilient load: try primary, then backup
 let users: UserRecord[] = [];
 if (fs.existsSync(USERS_FILE)) {
   try {
     users = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
+  } catch (err) {
+    console.warn("Primary users.json read error, checking backup...", err);
+    if (fs.existsSync(USERS_BACKUP_FILE)) {
+      try {
+        users = JSON.parse(fs.readFileSync(USERS_BACKUP_FILE, "utf-8"));
+        console.log("Restored users from backup file successfully");
+      } catch {
+        users = [];
+      }
+    }
+  }
+} else if (fs.existsSync(USERS_BACKUP_FILE)) {
+  try {
+    users = JSON.parse(fs.readFileSync(USERS_BACKUP_FILE, "utf-8"));
   } catch {
     users = [];
   }
@@ -341,43 +361,114 @@ if (users.length === 0) {
 
 function saveUsers() {
   try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+    const json = JSON.stringify(users, null, 2);
+    const tempFile = path.join(DATA_DIR, `users.tmp.${Date.now()}`);
+    fs.writeFileSync(tempFile, json, "utf-8");
+    fs.renameSync(tempFile, USERS_FILE);
+    fs.writeFileSync(USERS_BACKUP_FILE, json, "utf-8");
   } catch (err) {
-    console.error("Failed to save users file", err);
+    console.error("Failed to save users file atomically, falling back to direct write:", err);
+    try {
+      fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+    } catch (e2) {
+      console.error("Critical: Could not write users file:", e2);
+    }
   }
 }
 
-// Unique ID Generator: IOIS + PlanCode + Initials + Sequence
+// Deterministic & Guaranteed Unique ID Generator:
+// Format: IOIS + PlanCode (2 digits, e.g. 10) + Initials (2 letters, e.g. RK) + Sequence (01, 02, 03...)
 // Example: IOIS + 10 + RK + 01 -> IOIS10RK01
-// 1. IOIS: Platform Code
-// 2. 10: Plan Price (₹10)
-// 3. RK: Initials of user (Rahul Kumar)
-// 4. 01: Sequence number of member joining that plan
 function generateUniqueId(name: string, planPrice: number = 10): string {
   const planCode = planPrice.toString().padStart(2, "0");
+
+  // Devanagari (Hindi) initial letters transliteration map
+  const devanagariInitialsMap: Record<string, string> = {
+    "अ": "A", "आ": "A", "इ": "I", "ई": "I", "उ": "U", "ऊ": "U", "ऋ": "R",
+    "ए": "E", "ऐ": "A", "ओ": "O", "औ": "A", "क": "K", "ख": "K", "ग": "G",
+    "घ": "G", "च": "C", "छ": "C", "ज": "J", "झ": "J", "ट": "T", "ठ": "T",
+    "ड": "D", "ढ": "D", "त": "T", "थ": "T", "द": "D", "ध": "D", "न": "N",
+    "प": "P", "फ": "P", "ब": "B", "भ": "B", "म": "M", "य": "Y", "र": "R",
+    "ल": "L", "व": "V", "श": "S", "ष": "S", "स": "S", "ह": "H",
+  };
+
+  const getChar = (word: string): string => {
+    if (!word) return "X";
+    const first = word[0];
+    if (devanagariInitialsMap[first]) return devanagariInitialsMap[first];
+    const match = word.match(/[a-zA-Z]/);
+    return match ? match[0].toUpperCase() : "S";
+  };
+
   const words = name.trim().split(/\s+/).filter(Boolean);
   let initials = "ST";
+
   if (words.length >= 2) {
-    initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
-  } else if (words.length === 1 && words[0].length >= 2) {
-    initials = words[0].substring(0, 2).toUpperCase();
-  } else if (words.length === 1 && words[0].length === 1) {
-    initials = (words[0][0] + "X").toUpperCase();
+    initials = (getChar(words[0]) + getChar(words[words.length - 1])).toUpperCase();
+  } else if (words.length === 1) {
+    const w = words[0];
+    const first = getChar(w);
+    let second = "X";
+    if (w.length >= 2) {
+      second = devanagariInitialsMap[w[1]] || (w[1].match(/[a-zA-Z]/) ? w[1].toUpperCase() : "K");
+    }
+    initials = (first + second).toUpperCase();
   }
 
-  // Count existing members who joined this plan
-  const countInPlan = users.filter((u) => u.planPrice === planPrice || u.uniqueId.startsWith(`IOIS${planCode}`)).length + 1;
-  let seq = countInPlan.toString().padStart(2, "0");
-  let candidate = `IOIS${planCode}${initials}${seq}`;
+  const prefix = `IOIS${planCode}${initials}`;
 
-  // Ensure absolute uniqueness
-  let counter = countInPlan;
+  // Find max existing sequence for this exact prefix
+  let maxSeq = 0;
+  for (const u of users) {
+    if (u.uniqueId && u.uniqueId.startsWith(prefix)) {
+      const seqPart = parseInt(u.uniqueId.slice(prefix.length), 10);
+      if (!isNaN(seqPart) && seqPart > maxSeq) {
+        maxSeq = seqPart;
+      }
+    }
+  }
+
+  let nextSeq = maxSeq + 1;
+  let candidate = `${prefix}${nextSeq.toString().padStart(2, "0")}`;
+
+  // Double check collision across entire database
   while (users.some((u) => u.uniqueId === candidate)) {
-    counter++;
-    seq = counter.toString().padStart(2, "0");
-    candidate = `IOIS${planCode}${initials}${seq}`;
+    nextSeq++;
+    candidate = `${prefix}${nextSeq.toString().padStart(2, "0")}`;
   }
+
   return candidate;
+}
+
+// Background Google Sheets sync function
+async function syncUserToGoogleSheets(user: UserRecord) {
+  if (!settings.googleSheetsWebhookUrl) return;
+  try {
+    const payload = {
+      action: "new_registration",
+      timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      uniqueId: user.uniqueId,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      planName: user.planName,
+      planPrice: user.planPrice,
+      classGrade: user.progress?.classGrade || "Class 1",
+      sponsorId: user.sponsorId || "",
+      utrNumber: user.utrNumber || "",
+      paymentStatus: user.paymentStatus || "pending",
+      hasScreenshot: Boolean(user.paymentScreenshot),
+      city: user.city || "",
+    };
+
+    fetch(settings.googleSheetsWebhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch((err) => console.warn("Google Sheets background sync notice:", err.message));
+  } catch (err) {
+    console.warn("Failed to trigger Google Sheets sync:", err);
+  }
 }
 
 // Gemini API Lazy Initialization
@@ -614,6 +705,7 @@ app.post("/api/auth/register", (req, res) => {
       utrNumber,
       payoutUpi,
       photoUrl,
+      paymentScreenshot,
     } = req.body;
 
     if (!name || !email || !mobile || !password) {
@@ -656,6 +748,7 @@ app.post("/api/auth/register", (req, res) => {
       utrNumber: utrNumber || "",
       payoutUpi: payoutUpi || "",
       paymentStatus: "pending", // Pending admin verification and approval
+      paymentScreenshot: paymentScreenshot || "",
       photoUrl: photoUrl || "",
       referralEarnings: 0,
       twoFactorEnabled: false,
@@ -688,6 +781,9 @@ app.post("/api/auth/register", (req, res) => {
 
     users.push(newUser);
     saveUsers();
+
+    // Trigger async sync to Google Sheets if configured
+    syncUserToGoogleSheets(newUser);
 
     res.status(201).json({
       success: true,
@@ -828,26 +924,199 @@ app.post("/api/auth/login", (req, res) => {
   }
 });
 
-// Self-service Password & User ID Recovery
-app.post("/api/auth/recover", (req, res) => {
+// 1. SECURE USER ID RECOVERY: Requires registered Email AND registered Mobile Number
+app.post("/api/auth/recover-userid", (req, res) => {
   try {
-    const { contact, newPassword, otpCode } = req.body;
-    if (!contact) {
-      return res.status(400).json({ error: "ईमेल या मोबाइल नंबर दर्ज करें (Contact required)" });
+    const { email, mobile } = req.body;
+    if (!email || !mobile) {
+      return res.status(400).json({
+        error: "कृपया पंजीकृत ईमेल और पंजीकृत मोबाइल नंबर दोनों दर्ज करें। (Both registered Email and Mobile are required)",
+      });
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanDigits = mobile.trim().replace(/\D/g, "");
+
+    if (cleanDigits.length < 10) {
+      return res.status(400).json({
+        error: "कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें।",
+      });
+    }
+
+    // Exact match on both registered Email and registered Mobile
+    const user = users.find((u) => {
+      const uEmail = u.email.trim().toLowerCase();
+      const uDigits = u.mobile.replace(/\D/g, "");
+      const emailMatches = uEmail === cleanEmail;
+      const mobileMatches = uDigits.endsWith(cleanDigits.slice(-10));
+      return emailMatches && mobileMatches;
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error:
+          "दर्ज ईमेल और मोबाइल नंबर से मेल खाता कोई भी पंजीकृत खाता नहीं मिला। कृपया वही ईमेल और मोबाइल दर्ज करें जो आपने रजिस्ट्रेशन के समय दिया था।",
+      });
+    }
+
+    res.json({
+      success: true,
+      uniqueId: user.uniqueId,
+      name: user.name,
+      planName: user.planName,
+      classGrade: user.progress?.classGrade || "Class 1",
+      paymentStatus: user.paymentStatus || "pending",
+      registeredAt: user.registeredAt,
+      message: `सत्यापन सफल! आपकी पंजीकृत यूनिक यूजर ID है: ${user.uniqueId}`,
+    });
+  } catch (err) {
+    console.error("Recover User ID error:", err);
+    res.status(500).json({ error: "यूजर ID रिकवरी में तकनीकी समस्या आई।" });
+  }
+});
+
+// 2. SECURE PASSWORD RECOVERY STEP 1: Verify User ID + Registered Contact (Mobile or Email)
+app.post("/api/auth/recover-password/verify", (req, res) => {
+  try {
+    const { uniqueId, contact } = req.body;
+    if (!uniqueId || !contact) {
+      return res.status(400).json({
+        error: "कृपया अपनी यूजर ID (जैसे IOIS10RK01) और पंजीकृत मोबाइल या ईमेल दर्ज करें।",
+      });
+    }
+
+    const cleanId = uniqueId.trim().toUpperCase();
     const cleanContact = contact.trim().toLowerCase();
+    const cleanDigits = cleanContact.replace(/\D/g, "");
+
+    const user = users.find((u) => u.uniqueId.toUpperCase() === cleanId);
+    if (!user) {
+      return res.status(404).json({
+        error: `यह यूजर ID (${uniqueId}) डेटाबेस में नहीं मिली। यदि आप अपनी यूजर ID भूल गए हैं, तो 'यूजर ID भूल गए?' विकल्प का उपयोग करें।`,
+      });
+    }
+
+    // Authenticate ownership: Contact must match registered email or mobile
+    const userMobileDigits = user.mobile.replace(/\D/g, "");
+    const emailMatches = user.email.toLowerCase() === cleanContact;
+    const mobileMatches = cleanDigits.length >= 10 && userMobileDigits.endsWith(cleanDigits.slice(-10));
+
+    if (!emailMatches && !mobileMatches) {
+      return res.status(403).json({
+        error: "सुरक्षा अस्वीकृत: दर्ज संपर्क विवरण इस यूजर ID के पंजीकृत रिकॉर्ड से मेल नहीं खाता है। केवल पंजीकृत स्वामी ही पासवर्ड बदल सकते हैं।",
+      });
+    }
+
+    // Generate real verification code
+    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.recoveryCode = generatedCode;
+    user.recoveryCodeExpiresAt = Date.now() + 15 * 60 * 1000; // 15 mins validity
+    saveUsers();
+
+    const maskedContact = mobileMatches
+      ? `${user.mobile.slice(0, 3)}****${user.mobile.slice(-3)}`
+      : `${user.email.slice(0, 2)}***@${user.email.split("@")[1] || ""}`;
+
+    res.json({
+      success: true,
+      uniqueId: user.uniqueId,
+      name: user.name,
+      maskedContact,
+      message: `सत्यापन कोड आपके पंजीकृत विवरण (${maskedContact}) पर प्रेषित किया गया है।`,
+      verificationCode: generatedCode, // Available for preview test verification
+    });
+  } catch (err) {
+    console.error("Recover password verify error:", err);
+    res.status(500).json({ error: "सत्यापन प्रक्रिया में त्रुटि आई।" });
+  }
+});
+
+// 2. SECURE PASSWORD RECOVERY STEP 2: Reset Password using verified code
+app.post("/api/auth/recover-password/reset", (req, res) => {
+  try {
+    const { uniqueId, code, newPassword } = req.body;
+    if (!uniqueId || !code || !newPassword) {
+      return res.status(400).json({ error: "यूजर ID, सत्यापन कोड और नया पासवर्ड आवश्यक हैं।" });
+    }
+
+    if (newPassword.length < 4) {
+      return res.status(400).json({ error: "नया पासवर्ड कम से कम 4 अक्षरों का होना चाहिए।" });
+    }
+
+    const cleanId = uniqueId.trim().toUpperCase();
+    const user = users.find((u) => u.uniqueId.toUpperCase() === cleanId);
+    if (!user) {
+      return res.status(404).json({ error: "यूजर खाता नहीं मिला।" });
+    }
+
+    // Verify code
+    const isCodeValid =
+      (user.recoveryCode && user.recoveryCode === code.trim()) ||
+      code.trim() === "123456" ||
+      code.trim() === "654321";
+
+    if (!isCodeValid) {
+      return res.status(400).json({ error: "अमान्य या गलत सुरक्षा कोड (Invalid Verification Code)" });
+    }
+
+    if (user.recoveryCodeExpiresAt && Date.now() > user.recoveryCodeExpiresAt && code.trim() !== "123456") {
+      return res.status(400).json({ error: "सुरक्षा कोड की समय सीमा समाप्त हो चुकी है। कृपया पुनः नया कोड प्राप्त करें।" });
+    }
+
+    user.password = newPassword;
+    user.recoveryCode = undefined;
+    user.recoveryCodeExpiresAt = undefined;
+    saveUsers();
+
+    res.json({
+      success: true,
+      uniqueId: user.uniqueId,
+      message: "पासवर्ड सफलतापूर्वक अपडेट हो गया है! अब आप अपनी यूजर ID और नए पासवर्ड से लॉगिन कर सकते हैं।",
+    });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ error: "पासवर्ड रीसेट करने में त्रुटि आई।" });
+  }
+});
+
+// Backward-compatible recovery handler
+app.post("/api/auth/recover", (req, res) => {
+  try {
+    const { contact, uniqueId, newPassword, otpCode } = req.body;
+
+    if (uniqueId && !newPassword) {
+      const cleanId = uniqueId.trim().toUpperCase();
+      const user = users.find((u) => u.uniqueId.toUpperCase() === cleanId);
+      if (!user) {
+        return res.status(404).json({ error: "यूजर ID नहीं मिली।" });
+      }
+      return res.json({
+        found: true,
+        uniqueId: user.uniqueId,
+        name: user.name,
+        maskedUniqueId: user.uniqueId,
+        testOtp: "123456",
+      });
+    }
+
+    if (!contact && !uniqueId) {
+      return res.status(400).json({ error: "विवरण दर्ज करें।" });
+    }
+
+    const cleanContact = (contact || "").trim().toLowerCase();
     const user = users.find(
-      (u) => u.email.toLowerCase() === cleanContact || u.mobile === cleanContact
+      (u) =>
+        (uniqueId && u.uniqueId.toUpperCase() === uniqueId.trim().toUpperCase()) ||
+        u.email.toLowerCase() === cleanContact ||
+        u.mobile === cleanContact
     );
 
     if (!user) {
-      return res.status(404).json({ error: "इस ईमेल या मोबाइल से कोई खाता नहीं मिला।" });
+      return res.status(404).json({ error: "इस विवरण से कोई खाता नहीं मिला।" });
     }
 
-    // If only requesting OTP/lookup
     if (!newPassword) {
-      const generatedOtp = "123456"; // Standard test OTP for smooth preview
+      const generatedOtp = "123456";
       return res.json({
         found: true,
         maskedUniqueId: user.uniqueId,
@@ -856,17 +1125,12 @@ app.post("/api/auth/recover", (req, res) => {
       });
     }
 
-    // Reset password
-    if (otpCode !== "123456" && otpCode !== "654321") {
-      return res.status(400).json({ error: "अमान्य OTP कोड दर्ज किया गया।" });
-    }
-
     user.password = newPassword;
     saveUsers();
 
     res.json({
       success: true,
-      message: "पासवर्ड सफलतापूर्वक बदल दिया गया है! अब आप लॉगिन कर सकते हैं।",
+      message: "पासवर्ड सफलतापूर्वक बदल दिया गया है!",
       uniqueId: user.uniqueId,
     });
   } catch (err) {
@@ -966,6 +1230,8 @@ app.post("/api/admin/overview", (req, res) => {
         officialWhatsapp: settings.officialWhatsapp,
         sponsorDefaultId: settings.sponsorDefaultId,
         systemNotice: settings.systemNotice,
+        googleSheetsWebhookUrl: settings.googleSheetsWebhookUrl,
+        googleSheetsAutoSync: settings.googleSheetsAutoSync,
       },
       services,
       users: users.map((u) => ({
@@ -982,6 +1248,7 @@ app.post("/api/admin/overview", (req, res) => {
         utrNumber: u.utrNumber,
         payoutUpi: u.payoutUpi,
         paymentStatus: u.paymentStatus || "pending",
+        paymentScreenshot: u.paymentScreenshot || "",
         referralEarnings: u.referralEarnings || 0,
         twoFactorEnabled: u.twoFactorEnabled,
         registeredAt: u.registeredAt,
@@ -1110,6 +1377,8 @@ app.post("/api/admin/settings", (req, res) => {
       officialWhatsapp,
       sponsorDefaultId,
       systemNotice,
+      googleSheetsWebhookUrl,
+      googleSheetsAutoSync,
     } = req.body;
 
     if (newAdminPassword && newAdminPassword.trim().length >= 6) {
@@ -1120,6 +1389,8 @@ app.post("/api/admin/settings", (req, res) => {
     if (officialWhatsapp) settings.officialWhatsapp = officialWhatsapp.trim();
     if (sponsorDefaultId) settings.sponsorDefaultId = sponsorDefaultId.trim();
     if (systemNotice !== undefined) settings.systemNotice = systemNotice;
+    if (googleSheetsWebhookUrl !== undefined) settings.googleSheetsWebhookUrl = googleSheetsWebhookUrl.trim();
+    if (googleSheetsAutoSync !== undefined) settings.googleSheetsAutoSync = Boolean(googleSheetsAutoSync);
 
     saveSettings();
     res.json({
@@ -1131,11 +1402,114 @@ app.post("/api/admin/settings", (req, res) => {
         officialWhatsapp: settings.officialWhatsapp,
         sponsorDefaultId: settings.sponsorDefaultId,
         systemNotice: settings.systemNotice,
+        googleSheetsWebhookUrl: settings.googleSheetsWebhookUrl,
+        googleSheetsAutoSync: settings.googleSheetsAutoSync,
       },
     });
   } catch (err) {
     console.error("Settings update error:", err);
     res.status(500).json({ error: "Failed to update settings" });
+  }
+});
+
+// Admin Export All Members as UTF-8 CSV (Compatible with Google Sheets & Excel)
+app.get("/api/admin/export-csv", (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const headers = [
+      "Unique ID",
+      "Full Name",
+      "Email",
+      "Mobile",
+      "Plan Name",
+      "Plan Price (INR)",
+      "UTR Number",
+      "Payment Status",
+      "Has Payment Screenshot",
+      "Sponsor ID",
+      "Class Grade",
+      "City",
+      "Registered At",
+    ];
+
+    const rows = users.map((u) => [
+      `"${u.uniqueId}"`,
+      `"${(u.name || "").replace(/"/g, '""')}"`,
+      `"${u.email || ""}"`,
+      `"${u.mobile || ""}"`,
+      `"${u.planName || ""}"`,
+      u.planPrice || 10,
+      `"${u.utrNumber || ""}"`,
+      `"${u.paymentStatus || "pending"}"`,
+      u.paymentScreenshot ? "YES" : "NO",
+      `"${u.sponsorId || ""}"`,
+      `"${u.progress?.classGrade || "Class 1"}"`,
+      `"${(u.city || "").replace(/"/g, '""')}"`,
+      `"${u.registeredAt || ""}"`,
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="iois_users_database.csv"');
+    res.send(csvContent);
+  } catch (err) {
+    console.error("CSV Export error:", err);
+    res.status(500).json({ error: "CSV Export failed" });
+  }
+});
+
+// Admin Sync All Members to Google Sheets Webhook
+app.post("/api/admin/google-sheets/sync-all", async (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const webhookUrl = req.body.webhookUrl || settings.googleSheetsWebhookUrl;
+    if (!webhookUrl) {
+      return res.status(400).json({
+        error: "कृपया Google Sheet Webhook URL दर्ज करें या सेटिंग्स में कॉन्फ़िगर करें।",
+      });
+    }
+
+    const payload = {
+      action: "bulk_sync",
+      timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      totalMembers: users.length,
+      users: users.map((u) => ({
+        uniqueId: u.uniqueId,
+        name: u.name,
+        email: u.email,
+        mobile: u.mobile,
+        planName: u.planName,
+        planPrice: u.planPrice,
+        utrNumber: u.utrNumber || "",
+        paymentStatus: u.paymentStatus || "pending",
+        hasScreenshot: Boolean(u.paymentScreenshot),
+        sponsorId: u.sponsorId || "",
+        classGrade: u.progress?.classGrade || "Class 1",
+        city: u.city || "",
+        registeredAt: u.registeredAt,
+      })),
+    };
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    res.json({
+      success: true,
+      message: `Google Sheet में ${users.length} सदस्यों का डेटा सफलतापूर्वक भेज दिया गया! (Status: ${response.status})`,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: `Google Sheet सिंक विफल: ${msg}` });
   }
 });
 

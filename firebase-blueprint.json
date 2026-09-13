@@ -1,0 +1,114 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered IOIS Bal Vikas kit student member",
+      "type": "object",
+      "properties": {
+        "uniqueId": {
+          "type": "string",
+          "description": "Assigned unique student identifier (e.g. IOIS10RK01)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Student full name"
+        },
+        "email": {
+          "type": "string",
+          "description": "Registered email address"
+        },
+        "mobile": {
+          "type": "string",
+          "description": "Registered 10-digit mobile number"
+        },
+        "planId": {
+          "type": "string",
+          "description": "Enrolled IOIS plan ID"
+        },
+        "planName": {
+          "type": "string",
+          "description": "Display name of plan"
+        },
+        "planPrice": {
+          "type": "number",
+          "description": "Price in INR"
+        },
+        "sponsorId": {
+          "type": "string",
+          "description": "Referral sponsor ID"
+        },
+        "utrNumber": {
+          "type": "string",
+          "description": "UPI / bank transaction UTR reference"
+        },
+        "paymentScreenshot": {
+          "type": "string",
+          "description": "Base64 data or receipt image URL"
+        },
+        "paymentStatus": {
+          "type": "string",
+          "enum": ["pending", "approved", "verified"],
+          "description": "Payment verification status"
+        },
+        "classGrade": {
+          "type": "string",
+          "description": "Student grade or class"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of registration"
+        }
+      },
+      "required": ["uniqueId", "name", "email", "mobile", "planId", "paymentStatus"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Platform global configuration and payment details",
+      "type": "object",
+      "properties": {
+        "officialUpiId": {
+          "type": "string",
+          "description": "Official UPI receiving address"
+        },
+        "officialPayeeName": {
+          "type": "string",
+          "description": "Payee name"
+        },
+        "officialWhatsapp": {
+          "type": "string",
+          "description": "Official helpline WhatsApp"
+        },
+        "sponsorDefaultId": {
+          "type": "string",
+          "description": "Default sponsor ID"
+        },
+        "systemNotice": {
+          "type": "string",
+          "description": "Live announcement banner text"
+        },
+        "googleSheetsWebhookUrl": {
+          "type": "string",
+          "description": "Google Apps Script Webhook URL for Google Sheets auto-sync"
+        },
+        "googleSheetsAutoSync": {
+          "type": "boolean",
+          "description": "Whether real-time Google Sheets sync is enabled"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Collection of registered student members"
+    },
+    "/settings/{settingId}": {
+      "schema": {
+        "$ref": "#/entities/Setting"
+      },
+      "description": "Global application and payment settings"
+    }
+  }
+}

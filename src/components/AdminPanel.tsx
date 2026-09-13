@@ -23,6 +23,8 @@ import {
   Check,
   Eye,
   EyeOff,
+  FileSpreadsheet,
+  ImageIcon,
 } from "lucide-react";
 import { AdminOverview, PlatformService } from "../types";
 
@@ -69,7 +71,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     officialWhatsapp: "+91 8877490845",
     sponsorDefaultId: "IOIS999VK01",
     systemNotice: "",
+    googleSheetsWebhookUrl: "",
+    googleSheetsAutoSync: false,
   });
+
+  // Screenshot viewer modal state
+  const [selectedScreenshot, setSelectedScreenshot] = useState<{
+    url: string;
+    name: string;
+    uniqueId: string;
+    utr?: string;
+  } | null>(null);
+  const [syncingSheets, setSyncingSheets] = useState(false);
 
   if (!isOpen) return null;
 
@@ -107,6 +120,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           officialWhatsapp: resData.settings.officialWhatsapp || prev.officialWhatsapp,
           sponsorDefaultId: resData.settings.sponsorDefaultId || prev.sponsorDefaultId,
           systemNotice: resData.settings.systemNotice || "",
+          googleSheetsWebhookUrl: resData.settings.googleSheetsWebhookUrl || "",
+          googleSheetsAutoSync: !!resData.settings.googleSheetsAutoSync,
         }));
       }
       setIsAuthenticated(true);
@@ -115,6 +130,32 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setAuthError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCsv = () => {
+    window.open(`/api/admin/export-csv?adminPassword=${encodeURIComponent(adminPassword)}`, "_blank");
+    showNotification("सदस्य डेटा CSV फ़ाइल डाउनलोड हो रही है...");
+  };
+
+  const handleSyncGoogleSheets = async () => {
+    setSyncingSheets(true);
+    try {
+      const res = await fetch("/api/admin/google-sheets/sync-all", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": adminPassword,
+        },
+        body: JSON.stringify({ adminPassword }),
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "Google Sheets सिंक में समस्या आई");
+      showNotification(resData.message || "Google Sheets में सभी सदस्य सफलतापूर्वक सिंक हो गए!");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Google Sheets Sync विफल");
+    } finally {
+      setSyncingSheets(false);
     }
   };
 
@@ -882,6 +923,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <th className="p-3">सदस्य नाम & शहर</th>
                           <th className="p-3">प्लान (Plan)</th>
                           <th className="p-3">UTR / ट्रांजेक्शन नं.</th>
+                          <th className="p-3">रसीद / स्क्रीनशॉट</th>
                           <th className="p-3">पेआउट UPI</th>
                           <th className="p-3">स्थिति</th>
                           <th className="p-3 text-right">सत्यापन कार्रवाई</th>
@@ -918,6 +960,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                   </span>
                                 ) : (
                                   <span className="text-slate-400 italic">उपलब्ध नहीं</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {u.paymentScreenshot ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedScreenshot({
+                                        url: u.paymentScreenshot!,
+                                        name: u.name,
+                                        uniqueId: u.uniqueId,
+                                        utr: u.utrNumber,
+                                      })
+                                    }
+                                    className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 font-bold rounded-lg border border-amber-300 dark:border-amber-800 transition-colors"
+                                    title="भुगतान रसीद देखें"
+                                  >
+                                    <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+                                    <span className="text-[10px]">रसीद देखें</span>
+                                  </button>
+                                ) : (
+                                  <span className="text-[10px] text-slate-400 italic">नहीं भेजा</span>
                                 )}
                               </td>
                               <td className="p-3 font-mono text-slate-500">
@@ -1014,6 +1078,43 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                     </div>
 
+                    {/* Google Sheets Webhook Integration */}
+                    <div className="p-4 bg-emerald-50/70 dark:bg-slate-800/80 rounded-2xl border border-emerald-200 dark:border-emerald-800 space-y-3">
+                      <h5 className="font-extrabold text-xs text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                        <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                        <span>Google Sheet ऑटो-सिंक इंटीग्रेशन (Google Sheets Webhook):</span>
+                      </h5>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        अपना Google Apps Script Webhook URL दर्ज करें। हर नए रजिस्ट्रेशन पर सदस्य का डेटा (यूनिक ID, नाम, मोबाइल, ईमेल, UTR, प्लान) स्वतः Google Sheet में सुरक्षित सेव होगा।
+                      </p>
+
+                      <div>
+                        <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                          Google Apps Script Webhook URL:
+                        </label>
+                        <input
+                          type="url"
+                          value={settingsForm.googleSheetsWebhookUrl}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, googleSheetsWebhookUrl: e.target.value })}
+                          placeholder="https://script.google.com/macros/s/.../exec"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          id="autoSyncSheetsToggle"
+                          checked={settingsForm.googleSheetsAutoSync}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, googleSheetsAutoSync: e.target.checked })}
+                          className="w-4 h-4 text-emerald-600 rounded"
+                        />
+                        <label htmlFor="autoSyncSheetsToggle" className="font-bold text-slate-700 dark:text-slate-300 text-xs">
+                          रजिस्ट्रेशन के समय Google Sheet में ऑटो-सिंक सक्रिय रखें (Enable Real-Time Auto Sync)
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                       <h5 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                         <Lock className="w-4 h-4 text-amber-500" />
@@ -1056,7 +1157,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <span>क्लाउड डेटा बैकअप और आपदा रिकवरी (Disaster Recovery)</span>
                       </h4>
                       <p className="text-xs text-slate-500 mt-1">
-                        संपूर्ण उपयोगकर्ताओं का डेटा, सेवाएं और सिस्टम सेटिंग्स एक क्लिक में सुरक्षित JSON फ़ाइल के रूप में डाउनलोड या रीस्टोर करें।
+                        संपूर्ण उपयोगकर्ताओं का डेटा, सेवाएं और सिस्टम सेटिंग्स एक क्लिक में सुरक्षित JSON फ़ाइल या Excel CSV के रूप में डाउनलोड करें।
                       </p>
                     </div>
 
@@ -1069,7 +1170,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <span>संपूर्ण बैकअप डाउनलोड करें (Export JSON)</span>
                       </button>
 
-                      <label className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow cursor-pointer">
+                      <button
+                        onClick={handleExportCsv}
+                        className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow"
+                      >
+                        <FileSpreadsheet className="w-4 h-4" />
+                        <span>Excel / CSV डाउनलोड करें (Export CSV)</span>
+                      </button>
+
+                      <button
+                        onClick={handleSyncGoogleSheets}
+                        disabled={syncingSheets}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${syncingSheets ? "animate-spin" : ""}`} />
+                        <span>{syncingSheets ? "Google Sheet में सिंक हो रहा है..." : "Google Sheet में सभी सदस्य सिंक करें"}</span>
+                      </button>
+
+                      <label className="px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow cursor-pointer">
                         <Upload className="w-4 h-4" />
                         <span>बैकअप रीस्टोर करें (Import JSON)</span>
                         <input
@@ -1086,6 +1204,58 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           )}
         </div>
+
+        {/* Fullsize Payment Screenshot Viewer Modal */}
+        {selectedScreenshot && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+            <div className="relative max-w-xl w-full bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+              <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-amber-400" />
+                    <span>भुगतान रसीद (Payment Receipt)</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {selectedScreenshot.name} ({selectedScreenshot.uniqueId}) • UTR: {selectedScreenshot.utr || "—"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScreenshot(null)}
+                  className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-4 flex items-center justify-center bg-slate-950 max-h-[70vh] overflow-auto">
+                <img
+                  src={selectedScreenshot.url}
+                  alt="Payment Receipt"
+                  className="max-h-[65vh] w-auto object-contain rounded-xl shadow-lg border border-white/10"
+                />
+              </div>
+
+              <div className="p-3 bg-slate-50 dark:bg-slate-800 text-center flex items-center justify-between gap-2">
+                <a
+                  href={selectedScreenshot.url}
+                  download={`Receipt-${selectedScreenshot.uniqueId}.png`}
+                  className="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-100 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>रसीद डाउनलोड करें</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScreenshot(null)}
+                  className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs"
+                >
+                  बंद करें
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import { IOISPlansSection } from "./components/IOISPlansSection";
 import { PdfViewerSection } from "./components/PdfViewerSection";
 import { ServicesPortal } from "./components/ServicesPortal";
 import { Alphabet26Section } from "./components/Alphabet26Section";
+import { BalVikasPustikaSection } from "./components/BalVikasPustikaSection";
 import { AuthModal } from "./components/AuthModal";
 import { DeviceSecurityModal } from "./components/DeviceSecurityModal";
 import { AdminPanel } from "./components/AdminPanel";
@@ -357,6 +358,15 @@ export default function App() {
             onNavigate={(tab) => setActiveTab(tab)}
             onOpenAuth={() => openAuth("login")}
             onOpenDevices={() => setIsDevicesOpen(true)}
+          />
+        )}
+
+        {activeTab === "bal_vikas_pustika" && (
+          <BalVikasPustikaSection
+            user={user}
+            onOpenAuth={(mode) => openAuth(mode || "login")}
+            language={language}
+            soundEnabled={soundEnabled}
           />
         )}
 
