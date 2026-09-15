@@ -381,7 +381,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* Special Highlights: PDF Kit & Services Portal */}
+      {/* Special Highlights: PDF Kit & Drawing Slate */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Bal Vikas Study Material 48 Pages Card */}
         <div
@@ -408,27 +408,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </span>
         </div>
 
-        {/* IOIS Services Portal Card */}
+        {/* Drawing & Slate Studio Card */}
         <div
-          onClick={() => onNavigate("services")}
-          className="group p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/80 rounded-3xl border border-amber-200 dark:border-slate-700 hover:border-amber-400 hover:shadow-xl cursor-pointer transition-all space-y-3"
+          onClick={() => onNavigate("drawing")}
+          className="group p-6 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-slate-800 dark:to-slate-800/80 rounded-3xl border border-pink-200 dark:border-slate-700 hover:border-pink-400 hover:shadow-xl cursor-pointer transition-all space-y-3"
         >
           <div className="flex items-center justify-between">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl font-black shadow-md group-hover:scale-110 transition-transform">
-              🌐
+            <div className="w-12 h-12 rounded-2xl bg-pink-500 text-white flex items-center justify-center text-2xl font-black shadow-md group-hover:scale-110 transition-transform">
+              🎨
             </div>
-            <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-extrabold text-[11px]">
-              लाइव सेवाएं
+            <span className="px-3 py-1 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-800 dark:text-pink-300 font-extrabold text-[11px]">
+              कैनवास & स्लेट
             </span>
           </div>
           <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">
-            IOIS डिजिटल सेवा पोर्टल (Services)
+            डिजिटल ड्रॉइंग बॉक्स व पेंटिंग स्लेट
           </h3>
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-            RTPS बिहार, दाखिल खारिज, मौसम, समाचार टीवी एवं जनोपयोगी सेवाएं • एडमिन द्वारा नियंत्रित।
+            अक्षर व चित्र बनाना सीखें, बहुरंगी ब्रश, रबर, स्टैम्प्स एवं अपनी सुंदर कलाकृतियों को सेव व डाउनलोड करें।
           </p>
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-            <span>सेवा पोर्टल देखें</span>
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-pink-600 dark:text-pink-400 group-hover:translate-x-1 transition-transform">
+            <span>ड्रॉइंग स्लेट खोलें</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </span>
         </div>

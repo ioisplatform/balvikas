@@ -417,18 +417,22 @@ function generateUniqueId(name: string, planPrice: number = 10): string {
 
   const prefix = `IOIS${planCode}${initials}`;
 
-  // Find max existing sequence for this exact prefix
-  let maxSeq = 0;
+  // Global member sequence across all registered users
+  // User 1 = 01 (e.g. IOIS10RK01), User 2 = 02 (e.g. IOIS10AS02), User 3 = 03...
+  let maxGlobalMemberSeq = 0;
   for (const u of users) {
-    if (u.uniqueId && u.uniqueId.startsWith(prefix)) {
-      const seqPart = parseInt(u.uniqueId.slice(prefix.length), 10);
-      if (!isNaN(seqPart) && seqPart > maxSeq) {
-        maxSeq = seqPart;
+    if (u.uniqueId) {
+      const match = u.uniqueId.match(/(\d{2,})$/);
+      if (match) {
+        const seq = parseInt(match[1], 10);
+        if (!isNaN(seq) && seq > maxGlobalMemberSeq) {
+          maxGlobalMemberSeq = seq;
+        }
       }
     }
   }
 
-  let nextSeq = maxSeq + 1;
+  let nextSeq = Math.max(users.length + 1, maxGlobalMemberSeq + 1);
   let candidate = `${prefix}${nextSeq.toString().padStart(2, "0")}`;
 
   // Double check collision across entire database

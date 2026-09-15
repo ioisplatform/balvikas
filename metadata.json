@@ -1,6 +1,6 @@
 {
   "name": "IOIS Bal Vikas - Kids Learning Platform",
-  "description": "Class 1 to 5 interactive educational platform for Hindi, Math, English, Drawing, GK, Quizzes, and AI Chatbot with IOIS Unique ID registration and multi-device sync.",
+  "description": "सम्पूर्ण डिजिटल बाल विकास व प्रारंभिक शिक्षा मंच • डिजिटल पुस्तक, चिंटू AI शिक्षक, 3D मानव शरीर रचना, पेंसिल ट्रेसिंग, गणित, अंग्रेजी व क्विज़।",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

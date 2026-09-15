@@ -109,9 +109,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     lastActive: new Date().toISOString(),
   });
 
-  // Helper to preview generated Unique ID
+  // Helper to determine next global member sequence (01, 02, 03...)
+  const getGlobalClientMemberSequence = () => {
+    try {
+      const stored = localStorage.getItem("iois_users_cloud") || localStorage.getItem("iois_registered_members");
+      let maxNum = 1; // Rahul Kumar IOIS10RK01 is member 1
+      if (stored) {
+        const list = JSON.parse(stored);
+        if (Array.isArray(list)) {
+          for (const u of list) {
+            const m = (u.uniqueId || "").match(/(\d{2,})$/);
+            if (m) {
+              const n = parseInt(m[1], 10);
+              if (!isNaN(n) && n > maxNum) maxNum = n;
+            }
+          }
+          maxNum = Math.max(maxNum, list.length);
+        }
+      }
+      return maxNum + 1;
+    } catch {
+      return 2;
+    }
+  };
+
+  // Helper to preview generated Unique ID (e.g. IOIS10AS02 for second member)
   const computePreviewId = () => {
-    if (!regName.trim()) return "IOIS10XX01";
+    const nextSeq = getGlobalClientMemberSequence();
+    const seqStr = nextSeq.toString().padStart(2, "0");
+    if (!regName.trim()) return `IOIS10XX${seqStr}`;
     const words = regName.trim().split(/\s+/).filter(Boolean);
     let initials = "ST";
     if (words.length >= 2) {
@@ -120,7 +146,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       initials = words[0].substring(0, 2).toUpperCase();
     }
     const planCode = currentPlan.price.toString().padStart(2, "0");
-    return `IOIS${planCode}${initials}01`;
+    return `IOIS${planCode}${initials}${seqStr}`;
   };
 
   // Handle Login
@@ -756,7 +782,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   >
                     {IOIS_PLANS.map((p) => (
                       <option key={p.id} value={p.id}>
-                        ₹{p.price} - {p.name} (पेआउट: ₹{p.directPayout}, {p.commissionPercent}%)
+                        {p.planNumber ? `${p.planNumber}: ` : ""}₹{p.price} - {p.name} ({p.referralRate} पेआउट: {p.referralAmount})
                       </option>
                     ))}
                   </select>

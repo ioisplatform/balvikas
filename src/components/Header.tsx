@@ -70,18 +70,16 @@ export const Header: React.FC<HeaderProps> = ({
     { id: "pencil_tracing", labelHi: "✏️ पेंसिल ट्रेसिंग (A-Z & अ-ज्ञ)", labelEn: "Pencil Tracing Lab", icon: "✏️" },
     { id: "body_parts_3d", labelHi: "🫀 3D मानव शरीर रचना", labelEn: "3D Body Anatomy", icon: "🫀" },
     { id: "alphabet26", labelHi: "A-Z 26 पृष्ठ", labelEn: "A-Z 26 Pages", icon: "🔤" },
-    { id: "pdf_viewer", labelHi: "बाल विकास के लिए अध्ययन सामग्री", labelEn: "Bal Vikas Study Material", icon: "📚" },
-    { id: "services", labelHi: "IOIS सेवा पोर्टल", labelEn: "Services Portal", icon: "🌐" },
     { id: "hindi", labelHi: "हिंदी (वर्णमाला)", labelEn: "Hindi (Varnamala)", icon: "अ" },
     { id: "english", labelHi: "Good English", labelEn: "Good English", icon: "Aa" },
-    { id: "math", labelHi: "गणित (Math)", labelEn: "Mathematics", icon: "123" },
+    { id: "math", labelHi: "गणित (1-100 व पहाड़े)", labelEn: "Mathematics (1-100)", icon: "123" },
+    { id: "drawing", labelHi: "ड्रॉइंग बॉक्स व स्लेट", labelEn: "Drawing Box", icon: "🎨" },
     { id: "flashcards", labelHi: "चित्र ज्ञान (GK)", labelEn: "Flashcards (GK)", icon: "🦁" },
-    { id: "drawing", labelHi: "ड्रॉइंग बॉक्स", labelEn: "Drawing Box", icon: "🎨" },
     { id: "stories", labelHi: "कहानियाँ", labelEn: "Stories", icon: "📖" },
     { id: "quiz", labelHi: "क्विज़ & बैज", labelEn: "Quiz & Badges", icon: "🏆" },
-    { id: "chatbot", labelHi: "बाल गुरु AI", labelEn: "Bal Guru AI", icon: "🤖" },
-    { id: "report", labelHi: "प्रगति पत्र", labelEn: "Report Card", icon: "📊" },
-    { id: "plans", labelHi: "IOIS प्लान्स", labelEn: "IOIS Plans", icon: "💎" },
+    { id: "chatbot", labelHi: "चिंटू AI टीचर", labelEn: "Chintu AI Teacher", icon: "🤖" },
+    { id: "report", labelHi: "प्रगति पत्र (Report Card)", labelEn: "Report Card", icon: "📊" },
+    { id: "pdf_viewer", labelHi: "बाल विकास अध्ययन सामग्री", labelEn: "Study Material", icon: "📚" },
   ];
 
   return (

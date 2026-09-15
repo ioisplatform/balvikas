@@ -149,15 +149,28 @@ export type BadgeItem = DigitalBadge;
 
 export interface IOISPlan {
   id: string;
+  planNumber?: string;
   name: string;
+  subtitle?: string;
   price: number;
+  priceSubtitle?: string;
   badge: string;
+  category?: "starter" | "career" | "reseller";
+  description?: string;
   features: string[];
   referralRate: string;
   referralAmount: string;
   commissionPercent: number;
   directPayout: number;
   color: string;
+  story?: {
+    title: string;
+    text: string;
+    author?: string;
+  };
+  actionText?: string;
+  isMasterTier?: boolean;
+  allLowerPlansIncluded?: boolean;
 }
 
 export interface PlatformService {

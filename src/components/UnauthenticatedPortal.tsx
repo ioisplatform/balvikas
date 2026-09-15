@@ -32,11 +32,10 @@ import {
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { IOISRunningHeader } from "./IOISRunningHeader";
-import { IOIS_PLANS } from "../data/learningData";
 import { AiChatbot } from "./AiChatbot";
-import { ServicesPortal } from "./ServicesPortal";
 import { BalVikasPustikaSection } from "./BalVikasPustikaSection";
 import { RegistrationSection } from "./RegistrationSection";
+import { IOISPublicHome } from "./IOISPublicHome";
 
 interface UnauthenticatedPortalProps {
   onSuccessLogin: (user: UserProfile) => void;
@@ -49,7 +48,13 @@ interface UnauthenticatedPortalProps {
   setSoundEnabled?: (sound: boolean) => void;
 }
 
-type PortalTab = "login" | "register" | "bal_vikas_pustika" | "bal_guru" | "official_page" | "forgot";
+type PortalTab =
+  | "home"
+  | "login"
+  | "register"
+  | "bal_vikas_pustika"
+  | "bal_guru"
+  | "forgot";
 
 export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
   onSuccessLogin,
@@ -61,8 +66,8 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
   soundEnabled = true,
   setSoundEnabled,
 }) => {
-  // Strictly permitted unauthenticated views: Login, Registration, Bal Guru, and IOIS Official Page
-  const [activeTab, setActiveTab] = useState<PortalTab>("login");
+  // Default to comprehensive public portal Home
+  const [activeTab, setActiveTab] = useState<PortalTab>("home");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
@@ -88,8 +93,6 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
   const [forgotOtp, setForgotOtp] = useState<string>("");
   const [forgotNewPassword, setForgotNewPassword] = useState<string>("");
   const [otpSent, setOtpSent] = useState<boolean>(false);
-
-  const currentPlan = IOIS_PLANS.find((p) => p.id === selectedPlanId) || IOIS_PLANS[0];
 
   // Handle Member Login
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -199,29 +202,45 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
           {/* Logo & Platform Name */}
           <div
-            onClick={() => setActiveTab("login")}
+            onClick={() => setActiveTab("home")}
             className="flex items-center gap-2.5 cursor-pointer select-none group"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-black shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 flex items-center justify-center text-white font-black shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+              <span className="text-xs font-black tracking-tighter">IOIS</span>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-base font-black text-slate-900 dark:text-amber-400 tracking-tight">
-                  IOIS बाल विकास
+                  IOIS PLATFORM
                 </span>
-                <span className="text-[10px] uppercase font-bold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-800 hidden sm:inline-block">
-                  प्राथमिक शिक्षा
+                <span className="text-[10px] uppercase font-black bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full shadow-sm hidden sm:inline-block">
+                  INDIA 🇮🇳
                 </span>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
-                कक्षा 1 से 5 डिजिटल अध्ययन एवं नागरिक सेवा मंच
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-semibold">
+                Indian Online Income Supporting System • 100% पारदर्शी डिजिटल लर्निंग
               </span>
             </div>
           </div>
 
-          {/* Center: The ONLY 4 Allowed Options */}
-          <nav aria-label="Portal Navigation" className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200 dark:border-slate-700/80 overflow-x-auto">
+          {/* Center: Simplified Navigation for Child Development Platform */}
+          <nav aria-label="Portal Navigation" className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200 dark:border-slate-700/80 overflow-x-auto max-w-full">
+            {/* 0. होम पेज */}
+            <button
+              onClick={() => {
+                setActiveTab("home");
+                setErrorMessage("");
+                setSuccessMessage("");
+              }}
+              className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === "home"
+                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+            >
+              <span>🏠 मुख्य पृष्ठ (Home)</span>
+            </button>
+
             {/* 1. सदस्य लॉगिन */}
             <button
               onClick={() => {
@@ -253,10 +272,10 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-orange-600 dark:text-orange-300" />
-              <span>रजिस्ट्रेशन / Join Now</span>
+              <span>नया रजिस्ट्रेशन</span>
             </button>
 
-            {/* 2.5 बाल विकास पुस्तिका (700+ पृष्ठ - Login Required) */}
+            {/* 3. बाल विकास पुस्तक */}
             <button
               onClick={() => {
                 setActiveTab("bal_vikas_pustika");
@@ -270,10 +289,10 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               }`}
             >
               <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>🔒 700+ पृष्ठ अध्ययन पुस्तक (Login Required)</span>
+              <span>📖 डिजिटल बाल विकास पुस्तक</span>
             </button>
 
-            {/* 3. बाल गुरु AI */}
+            {/* 4. चिंटू AI शिक्षक / बाल गुरु */}
             <button
               onClick={() => {
                 setActiveTab("bal_guru");
@@ -287,24 +306,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               }`}
             >
               <Bot className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>बाल गुरु AI</span>
-            </button>
-
-            {/* 4. IOIS की ऑफिशियल पेज */}
-            <button
-              onClick={() => {
-                setActiveTab("official_page");
-                setErrorMessage("");
-                setSuccessMessage("");
-              }}
-              className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                activeTab === "official_page"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
-              }`}
-            >
-              <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>IOIS ऑफिशियल पेज</span>
+              <span>चिंटू AI शिक्षक</span>
             </button>
           </nav>
 
@@ -352,6 +354,28 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
 
       {/* Main Active View Area */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col justify-start">
+        {/* TAB 0: COMPREHENSIVE PUBLIC HOME PAGE */}
+        {activeTab === "home" && (
+          <div className="flex-1 w-full space-y-6">
+            <IOISPublicHome
+              onNavigateToTab={(tabId) => {
+                setActiveTab(tabId as any);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenLogin={() => {
+                setActiveTab("login");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenRegister={(planId) => {
+                if (planId) setSelectedPlanId(planId);
+                setActiveTab("register");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenAdmin={onOpenAdmin}
+            />
+          </div>
+        )}
+
         {/* TAB 1: MEMBER LOGIN */}
         {activeTab === "login" && (
           <div className="flex-1 flex items-center justify-center py-4">
@@ -512,7 +536,6 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               onNavigateToTab={(tab) => {
                 if (tab === "bal_vikas_pustika") setActiveTab("bal_vikas_pustika");
                 else if (tab === "chatbot" || tab === "bal_guru") setActiveTab("bal_guru");
-                else if (tab === "services" || tab === "plans" || tab === "gov" || tab === "helpline") setActiveTab("official_page");
                 else setActiveTab("login");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
@@ -624,92 +647,6 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               >
                 रजिस्ट्रेशन करें
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: IOIS OFFICIAL PAGE (Official Public Services Portal) */}
-        {activeTab === "official_page" && (
-          <div className="flex-1 w-full flex flex-col space-y-4">
-            {/* Official Header Banner */}
-            <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white p-5 rounded-3xl shadow-xl border border-emerald-700/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-white shrink-0 shadow-lg">
-                  <Globe className="w-7 h-7 text-emerald-300" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-lg sm:text-xl font-black">
-                      IOIS आधिकारिक नागरिक एवं डिजिटल सेवा मंच
-                    </h1>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px]">
-                      OFFICIAL
-                    </span>
-                  </div>
-                  <p className="text-xs text-emerald-100 mt-1 max-w-2xl">
-                    बिहार लोक सेवाएं (RTPS), भूमि दाखिल-खारिज, मौसम पूर्वानुमान, दूरदर्शन बिहार शैक्षिक प्रसारण, पंचांग एवं IOIS बाल विकास मंच।
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => setActiveTab("register")}
-                  className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition-transform active:scale-95 flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>नया रजिस्ट्रेशन (₹10)</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("login")}
-                  className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-black text-xs border border-white/30 transition-transform active:scale-95 flex items-center gap-1.5"
-                >
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>सदस्य लॉगिन</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Services Portal Component */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6">
-              <ServicesPortal
-                user={null}
-                language={language}
-                soundEnabled={soundEnabled}
-                onOpenAdmin={onOpenAdmin}
-                onOpenAuth={() => setActiveTab("login")}
-              />
-            </div>
-
-            {/* Official Contact & Head Office Details */}
-            <div className="bg-slate-50 dark:bg-slate-900/80 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div className="flex items-start gap-2.5">
-                <Landmark className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold text-slate-900 dark:text-white">मुख्यालय (Head Office)</strong>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    IOIS डिजिटल बाल विकास, पटना, बिहार - 800001
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <PhoneCall className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold text-slate-900 dark:text-white">हेल्पलाइन नंबर</strong>
-                  <span className="text-slate-500 dark:text-slate-400 font-mono font-bold">
-                    +91 8877490845 (सुबह 9:00 से शाम 7:00)
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold text-slate-900 dark:text-white">आधिकारिक ईमेल</strong>
-                  <span className="text-slate-500 dark:text-slate-400 font-mono">
-                    ioisplatform@gmail.com
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         )}

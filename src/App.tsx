@@ -10,9 +10,7 @@ import { DrawingBox } from "./components/DrawingBox";
 import { AiChatbot } from "./components/AiChatbot";
 import { QuizSection } from "./components/QuizSection";
 import { StudentReport } from "./components/StudentReport";
-import { IOISPlansSection } from "./components/IOISPlansSection";
 import { PdfViewerSection } from "./components/PdfViewerSection";
-import { ServicesPortal } from "./components/ServicesPortal";
 import { Alphabet26Section } from "./components/Alphabet26Section";
 import { BalVikasPustikaSection } from "./components/BalVikasPustikaSection";
 import { PencilTracingVideoEngine } from "./components/PencilTracingVideoEngine";
@@ -403,16 +401,6 @@ export default function App() {
           />
         )}
 
-        {activeTab === "services" && (
-          <ServicesPortal
-            user={user}
-            language={language}
-            soundEnabled={soundEnabled}
-            onOpenAdmin={() => setIsAdminOpen(true)}
-            onOpenAuth={() => openAuth("login")}
-          />
-        )}
-
         {activeTab === "hindi" && (
           <HindiSection
             language={language}
@@ -484,16 +472,6 @@ export default function App() {
             progress={progress}
             selectedGrade={selectedGrade}
             language={language}
-          />
-        )}
-
-        {activeTab === "plans" && (
-          <IOISPlansSection
-            user={user}
-            language={language}
-            onSelectPlan={(planId) => {
-              setIsAuthOpen(true);
-            }}
           />
         )}
       </main>
