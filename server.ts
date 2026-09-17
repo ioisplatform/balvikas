@@ -1258,14 +1258,7 @@ function isAuthorizedAdmin(req: express.Request): boolean {
 
   if (!provided) return false;
   const p = String(provided).trim();
-  return (
-    p === masterPassword ||
-    p === "IOISSYSTEM" ||
-    p === "IOIS@2025" ||
-    p === "IOIS@2026" ||
-    p === "admin" ||
-    p === "admin123"
-  );
+  return p === masterPassword || p === "IOISSYSTEM";
 }
 
 // Public Platform Services Route

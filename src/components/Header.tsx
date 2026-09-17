@@ -226,7 +226,7 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onOpenAdmin}
-                title="Admin Panel (IOISSYSTEM)"
+                title={language === "hi" ? "एडमिन पैनल" : "Admin Panel"}
                 className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 <ShieldAlert className="w-4 h-4" />

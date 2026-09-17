@@ -207,13 +207,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     const clean = entered.trim();
     const saved = localStorage.getItem("iois_admin_password");
     if (saved && clean === saved) return true;
-    return (
-      clean === "IOISSYSTEM" ||
-      clean === "admin" ||
-      clean === "admin123" ||
-      clean === "IOIS@2025" ||
-      clean === "IOIS@2026"
-    );
+    return clean === "IOISSYSTEM";
   };
 
   const buildLocalOverview = async (): Promise<AdminOverview> => {
@@ -809,18 +803,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between pt-1.5 px-1">
-                    <span className="text-[11px] text-slate-500">
-                      डिफ़ॉल्ट मास्टर कुंजी: <code className="font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded">IOISSYSTEM</code>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setAdminPassword("IOISSYSTEM")}
-                      className="text-[11px] font-bold text-amber-600 hover:text-amber-700 underline"
-                    >
-                      ऑटो-भरें (Auto-Fill)
                     </button>
                   </div>
                 </div>
