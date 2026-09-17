@@ -29,14 +29,14 @@ export interface StudentProgress {
   savedDrawings: DrawingItem[];
   classGrade: string;
   // Progress tracking convenience properties
-  hindiLettersLearned: string[];
-  englishLettersLearned: string[];
-  mathCompleted: boolean;
-  drawingsCount: number;
-  badgesUnlocked: string[];
-  quizTotalQuestions: number;
-  quizCorrectAnswers: number;
-  lastActive: string;
+  hindiLettersLearned?: string[];
+  englishLettersLearned?: string[];
+  mathCompleted?: boolean;
+  drawingsCount?: number;
+  badgesUnlocked?: string[];
+  quizTotalQuestions?: number;
+  quizCorrectAnswers?: number;
+  lastActive?: string;
 }
 
 export interface UserProfile {
@@ -45,6 +45,7 @@ export interface UserProfile {
   name: string;
   email: string;
   mobile: string;
+  password?: string;
   planId: string;
   planName: string;
   planPrice: number;

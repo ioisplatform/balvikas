@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { UserProfile, StudentProgress } from "../types";
 import { IOIS_PLANS } from "../data/learningData";
+import { syncUserToCloudAndLocal, findUserInCloudOrLocal } from "../utils/userSync";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -198,8 +199,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       // Static hosting fallback (e.g., GitHub Pages without Node backend)
       if (!isBackendAvailable && !loggedInUser) {
+        const found = await findUserInCloudOrLocal(loginIdentifier.trim(), loginPassword);
+        if (found) {
+          loggedInUser = found;
+        }
+
         const savedUserStr = localStorage.getItem("iois_user");
-        if (savedUserStr) {
+        if (!loggedInUser && savedUserStr) {
           try {
             const parsed = JSON.parse(savedUserStr);
             if (parsed.uniqueId === loginIdentifier || parsed.mobile === loginIdentifier || parsed.email === loginIdentifier) {
@@ -250,11 +256,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           isDemo: false,
           paymentStatus: "verified",
         };
+        await syncUserToCloudAndLocal(verifiedUser);
         setSuccessMessage("लॉगिन सफल!");
         setTimeout(() => {
           onSuccessLogin(verifiedUser);
           onClose();
-        }, 700);
+        }, 500);
       } else {
         throw new Error("लॉगिन विफल (खाता नहीं मिला)");
       }
@@ -366,6 +373,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           isDemo: false,
           paymentStatus: "verified",
         };
+        await syncUserToCloudAndLocal(activeUser);
         setSuccessMessage(`सफलतापूर्वक पंजीकृत! आपकी यूनिक आईडी है: ${activeUser.uniqueId}`);
         setTimeout(() => {
           onSuccessLogin(activeUser);
