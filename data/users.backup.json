@@ -25,6 +25,27 @@
         "browser": "Chrome Mobile 120",
         "ip": "103.21.244.1",
         "lastActive": "2026-09-12T11:18:54.725Z"
+      },
+      {
+        "id": "dev_1789747926990",
+        "deviceName": "Desktop Browser",
+        "browser": "curl/7.88.1",
+        "ip": "127.0.0.1",
+        "lastActive": "2026-09-18T16:12:06.991Z"
+      },
+      {
+        "id": "dev_1790077316265",
+        "deviceName": "Desktop Browser",
+        "browser": "curl/7.88.1",
+        "ip": "127.0.0.1",
+        "lastActive": "2026-09-22T11:41:56.265Z"
+      },
+      {
+        "id": "dev_1790077324457",
+        "deviceName": "Desktop Browser",
+        "browser": "curl/7.88.1",
+        "ip": "127.0.0.1",
+        "lastActive": "2026-09-22T11:42:04.457Z"
       }
     ],
     "progress": {

@@ -26,6 +26,7 @@ import {
   Lock,
   ExternalLink,
 } from "lucide-react";
+import { FourLineEnglishTracing } from "./FourLineEnglishTracing";
 import {
   BOOK_PARTS,
   BOOK_CHAPTERS,
@@ -449,17 +450,17 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                  IOIS PLATFORM • 720 पृष्ठ डिजिटल वर्कबुक
+                  IOIS बाल विकास • 720 पृष्ठ सचित्र डिजिटल अध्ययन
                 </span>
                 <span className="hidden sm:inline-flex text-xs font-bold text-emerald-600 dark:text-emerald-400 items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>पढ़े, लिखे व होमवर्क करे</span>
+                  <span>पढ़े, लिखे व सचित्र होमवर्क करे</span>
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-amber-400 mt-1 flex items-center gap-2">
-                <span>बाल विकास: संपूर्ण अध्ययन पुस्तिका</span>
-                <span className="text-xs sm:text-sm font-normal text-slate-400 dark:text-slate-500">
-                  (0 से 5 वर्ष के बच्चों के लिए)
+                <span>IOIS बाल विकास</span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  • सम्पूर्ण डिजिटल सचित्र अध्ययन पुस्तिका (0 से 5 वर्ष)
                 </span>
               </h2>
             </div>
@@ -614,34 +615,73 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
           }}
         >
             {/* Top Page Running Header with Branding */}
-            <div className="p-4 sm:p-5 border-b-2 border-amber-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-amber-100/60 dark:bg-slate-800/60">
-              <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-orange-600 text-white font-black text-xs flex items-center justify-center shadow">
+            <div className="p-4 sm:p-5 border-b-2 border-amber-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-gradient-to-r from-amber-100/90 via-orange-50 to-amber-100/90 dark:from-slate-800 dark:to-slate-850">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black text-xs flex items-center justify-center shadow-md">
                   IOIS
                 </span>
-                <span className="font-extrabold text-slate-800 dark:text-slate-100 text-sm">
-                  बाल विकास: डिजिटल अध्ययन पुस्तिका
-                </span>
+                <div>
+                  <span className="font-black text-slate-900 dark:text-slate-100 text-sm block leading-none">
+                    IOIS बाल विकास
+                  </span>
+                  <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold">
+                    सचित्र डिजिटल अध्ययन पुस्तिका
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="font-black text-xs text-orange-700 dark:text-amber-400 bg-white/80 dark:bg-slate-900/80 px-2.5 py-1 rounded-full border border-amber-300">
-                  Page {currentPageNum}
+              <div className="text-right flex items-center gap-2">
+                <span className="font-black text-xs text-orange-800 dark:text-amber-300 bg-white/90 dark:bg-slate-900/90 px-3 py-1 rounded-full border border-amber-300 shadow-sm font-mono">
+                  पृष्ठ {currentPageNum} / {TOTAL_PAGES}
                 </span>
               </div>
             </div>
 
             {/* PAGE CONTENT RENDERING ENGINE */}
             <div className="p-6 sm:p-8 space-y-6">
-              {/* 1. COVER PAGE (Page 1) */}
+              {/* 1. COVER PAGE (Page 1) - With Royal Gold Ornate Book Border */}
               {pageData.type === "cover" && (
                 <div className="flex flex-col items-center justify-center text-center space-y-6 py-4">
-                  <div className="relative max-w-md w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-amber-300 dark:border-amber-700">
-                    <img
-                      src="/src/assets/images/bal_vikas_cover_1789232263344.jpg"
-                      alt="Bal Vikas Cover"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-auto object-cover"
-                    />
+                  {/* Ornate Badge */}
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white text-xs font-black uppercase tracking-widest shadow-md border-2 border-amber-300">
+                    <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+                    <span>IOIS प्राथमिक बाल विकास एवं स्वावलंबन प्रवेशिका (720 पृष्ठ)</span>
+                  </div>
+
+                  {/* Ornate Framed Document Cover */}
+                  <div className="relative max-w-md w-full p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-4 border-amber-600 shadow-2xl">
+                    {/* Corner Medallions */}
+                    <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+                      ❖
+                    </div>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+                      ❖
+                    </div>
+                    <div className="absolute -bottom-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+                      ❖
+                    </div>
+                    <div className="absolute -bottom-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+                      ❖
+                    </div>
+
+                    <div className="relative rounded-2xl overflow-hidden shadow-inner border-2 border-amber-800/60 bg-white">
+                      <img
+                        src="/src/assets/images/bal_vikas_cover_1789232263344.jpg"
+                        alt="Bal Vikas Cover"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-auto object-cover"
+                      />
+                      <div className="absolute top-0 bottom-0 left-0 w-4 bg-gradient-to-r from-black/25 via-black/10 to-transparent pointer-events-none" />
+                    </div>
+
+                    <div className="mt-2.5 flex items-center justify-between text-[11px] font-bold text-amber-950 px-2">
+                      <span className="flex items-center gap-1 text-red-800 font-black">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 inline" />
+                        <span>प्रमाणित मूल अपलोड पृष्ठ (Original Document Page)</span>
+                      </span>
+                      <span className="bg-amber-300/80 px-2 py-0.5 rounded-full border border-amber-500 text-[10px]">
+                        IOIS आधिकारिक प्रकाशन
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2 max-w-lg">
@@ -675,46 +715,95 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                 </div>
               )}
 
-              {/* 2. TABLE OF CONTENTS (Pages 2 - 5) */}
+              {/* 2. TABLE OF CONTENTS (Pages 2 - 5) - Real Textbook Index with Dotted Leaders & Parts */}
               {pageData.type === "index" && (
                 <div className="space-y-6">
-                  <div className="text-center space-y-1">
-                    <h3 className="text-2xl font-black text-slate-800 dark:text-amber-400 flex items-center justify-center gap-2">
-                      <List className="w-6 h-6 text-orange-600" />
-                      <span>सम्पूर्ण विषय सूची (Table of Contents - 720 पृष्ठ)</span>
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      किसी भी अध्याय पर क्लिक करके सीधे उस पृष्ठ पर अध्ययन व होमवर्क शुरू करें।
+                  {/* Classical Textbook Header Ornament */}
+                  <div className="text-center p-6 bg-gradient-to-b from-amber-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-double border-amber-800/40 dark:border-amber-600/40 shadow-md relative">
+                    <div className="text-xs font-serif font-bold text-amber-900 dark:text-amber-300 tracking-widest uppercase mb-1">
+                      ।। श्री गणेशाय नमः ।। ।। ॐ ऐं सरस्वत्यै नमः ।।
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-amber-400 font-serif tracking-wide">
+                      अनुक्रमणिका / विस्तृत विषय-सूची
+                    </h2>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 font-serif mt-1">
+                      बाल विकास: 720 पृष्ठ सचित्र संपूर्ण अध्ययन, सुलेख व कार्यपत्रिका संग्रह
                     </p>
+                    <div className="h-1 w-32 mx-auto bg-gradient-to-r from-transparent via-amber-600 to-transparent my-2 rounded" />
+                    <span className="text-[11px] text-amber-800 dark:text-amber-400 font-mono bg-amber-100 dark:bg-slate-800 px-3 py-0.5 rounded-full border border-amber-300">
+                      किसी भी पाठ पर क्लिक करके सीधे उस पृष्ठ पर अध्ययन शुरू करें
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {BOOK_CHAPTERS.filter((ch) => ch.chapterNumber > 0).map((ch) => (
-                      <div
-                        key={ch.id}
-                        onClick={() => jumpToPage(ch.startPage)}
-                        className="p-3.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/60 dark:hover:bg-slate-800 rounded-2xl border border-amber-200 dark:border-slate-700 shadow-sm cursor-pointer transition-all hover:scale-[1.01] flex items-center justify-between gap-3 group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-black text-base flex items-center justify-center shadow-sm shrink-0">
-                            {ch.icon}
-                          </span>
-                          <div>
-                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-slate-100 group-hover:text-amber-600">
-                              {ch.chapterTitle}
-                            </h4>
-                            <p className="text-[11px] text-slate-500 line-clamp-1">
-                              {ch.description}
-                            </p>
+                  {/* Organized by Authentic Textbook Parts (भाग 1 से 5) */}
+                  <div className="space-y-6">
+                    {BOOK_PARTS.map((part) => {
+                      const chaptersInPart = BOOK_CHAPTERS.filter(
+                        (ch) => ch.partNumber === part.partNumber && ch.chapterNumber > 0
+                      );
+                      if (chaptersInPart.length === 0) return null;
+
+                      return (
+                        <div
+                          key={part.partNumber}
+                          className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-amber-300/80 dark:border-slate-700 shadow-sm overflow-hidden"
+                        >
+                          {/* Part Header Banner */}
+                          <div className="bg-gradient-to-r from-amber-800 via-orange-800 to-red-900 text-white px-5 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <span className="px-2.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-black text-xs">
+                                भाग {part.partNumber}
+                              </span>
+                              <h3 className="font-serif font-black text-sm sm:text-base text-amber-100">
+                                {part.titleHi}
+                              </h3>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-amber-300">
+                              {part.range}
+                            </span>
+                          </div>
+
+                          {/* Chapters Table with Dotted Leaders */}
+                          <div className="divide-y divide-slate-100 dark:divide-slate-800 p-2 sm:p-4">
+                            {chaptersInPart.map((ch) => (
+                              <div
+                                key={ch.id}
+                                onClick={() => jumpToPage(ch.startPage)}
+                                className="p-3 hover:bg-amber-50/80 dark:hover:bg-slate-800/80 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 group"
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <span className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-slate-800 text-amber-900 dark:text-amber-300 font-black text-xs flex items-center justify-center shrink-0 border border-amber-300 shadow-sm">
+                                    {ch.chapterNumber}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-baseline gap-2 flex-wrap sm:flex-nowrap">
+                                      <span className="font-serif font-extrabold text-xs sm:text-sm text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 whitespace-nowrap">
+                                        {ch.chapterTitle}
+                                      </span>
+                                      {/* Dotted Leader Line */}
+                                      <span className="hidden sm:inline-block flex-1 border-b-2 border-dotted border-slate-300 dark:border-slate-700 h-0 my-auto mx-2 opacity-60" />
+                                      <span className="text-[11px] text-slate-500 line-clamp-1 sm:line-clamp-none">
+                                        ({ch.description})
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-amber-300 font-mono font-black text-xs border border-amber-300/40">
+                                    पृष्ठ {ch.startPage}-{ch.endPage}
+                                  </span>
+                                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform">
+                                    <span>खोलें</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <span className="px-2 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold text-[11px] font-mono">
-                            पृष्ठ {ch.startPage}-{ch.endPage}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -816,13 +905,45 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                 </div>
               )}
 
-              {/* 4. ALPHABET / SWAR / VYANJAN TRACING SHEET (Step-by-step Tracing) */}
-              {(pageData.type === "alphabet_trace" ||
-                pageData.type === "swar_trace" ||
-                pageData.type === "vyanjan_trace") && (
+              {/* 4. ALPHABET 4-LINE TRACING WORKBOOK (English Real Four-Line Copybook) */}
+              {pageData.type === "alphabet_trace" && (
+                <FourLineEnglishTracing
+                  char={pageData.heroCharacter}
+                  smallChar={pageData.heroCharacter?.toLowerCase()}
+                  word={pageData.heroWord}
+                  hindiWord={pageData.heroWordHi}
+                  strokes={pageData.lines}
+                  soundEnabled={soundEnabled}
+                />
+              )}
+
+              {/* 4.1 HINDI SWAR & VYANJAN TRACING SHEET (शिरोरेखा एवं आधार रेखा सचित्र सुलेख) */}
+              {(pageData.type === "swar_trace" || pageData.type === "vyanjan_trace") && (
                 <div className="space-y-6">
+                  {/* Real Photo Banner for Tracing & Handwriting */}
+                  {pageData.heroImage && (
+                    <div className="w-full h-32 sm:h-40 rounded-3xl overflow-hidden shadow-md border-2 border-amber-300 relative group">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Writing & Tracing Practice"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent flex items-end p-4">
+                        <div className="text-white space-y-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                            IOIS सचित्र सुलेख एवं पेंसिल अभ्यास
+                          </span>
+                          <h4 className="text-sm sm:text-base font-black text-white">
+                            अक्षर '{pageData.heroCharacter}' लेखन व ट्रेसिंग वर्कबुक
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Tracing Instructions Header */}
-                  <div className="p-4 bg-white dark:bg-slate-800/90 rounded-2xl border-2 border-amber-300 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                  <div className="p-4 bg-white dark:bg-slate-800/90 rounded-2xl border-2 border-amber-300 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm">
                     <div>
                       <h3 className="text-xl font-black text-slate-800 dark:text-amber-400">
                         {pageData.title}
@@ -830,7 +951,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                       <p className="text-xs text-slate-500 mt-0.5">{pageData.subtitle}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-sm">
                         <PenTool className="w-3.5 h-3.5" />
                         <span>उंगली / पेन से लिखें</span>
                       </span>
@@ -839,7 +960,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
 
                   {/* Step-by-Step Tracing Guidelines */}
                   {pageData.lines && (
-                    <div className="p-3 bg-amber-50 dark:bg-slate-900/70 rounded-xl border border-amber-200 text-xs">
+                    <div className="p-3.5 bg-amber-50 dark:bg-slate-900/70 rounded-2xl border border-amber-200 text-xs shadow-sm">
                       <strong className="text-amber-900 dark:text-amber-300 block mb-1">
                         ✏️ सही रेखा और दिशा निर्देश (Stroke Order Guidelines):
                       </strong>
@@ -856,7 +977,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                     </div>
                   )}
 
-                  {/* Visual Trace Boxes Grid (Dotted letters + Empty Boxes) */}
+                  {/* Hindi Ruled Trace Boxes Grid */}
                   <div className="space-y-4">
                     <span className="text-xs font-black uppercase text-slate-600 dark:text-slate-400">
                       👇 अभ्यास पंक्ति 1: बिंदुओं को जोड़ें (Trace on Dotted Letter):
@@ -901,11 +1022,25 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               {(pageData.type === "swar_intro" || pageData.type === "vyanjan_intro") && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-300 dark:border-slate-700 shadow-lg">
-                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-amber-200">
-                      <div className="w-36 h-36 rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-400 flex items-center justify-center text-white text-8xl font-black shadow-xl shadow-amber-500/20 mb-2">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-amber-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-amber-300 mb-3 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={`${pageData.heroCharacter} से ${pageData.heroWord}`}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-400 flex items-center justify-center text-white text-7xl font-black shadow-xl shadow-amber-500/20 mb-2">
+                          {pageData.heroCharacter}
+                        </div>
+                      )}
+                      <div className="text-4xl font-black text-amber-700 dark:text-amber-400">
                         {pageData.heroCharacter}
                       </div>
-                      <span className="text-lg font-black text-amber-700 dark:text-amber-300">
+                      <span className="text-sm font-black text-slate-800 dark:text-slate-100 mt-1">
                         {pageData.heroCharacter} से {pageData.heroWord}
                       </span>
                     </div>
@@ -913,9 +1048,9 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                     <div className="md:col-span-7 space-y-4">
                       <div>
                         <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-                          हिंदी वर्णमाला
+                          हिंदी वर्णमाला सचित्र
                         </span>
-                        <h3 className="text-4xl font-black text-slate-900 dark:text-white mt-2">
+                        <h3 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mt-2">
                           {pageData.heroCharacter} से {pageData.heroWord}
                         </h3>
                         <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">
@@ -934,7 +1069,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                           {pageData.examples.map((ex, i) => (
                             <div
                               key={i}
-                              className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2"
+                              className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 shadow-sm"
                             >
                               <span className="text-2xl">{ex.icon}</span>
                               <div>
@@ -953,6 +1088,27 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               {/* 6. BARAKHADI TABLE (Page 156 to 185) */}
               {pageData.type === "barakhadi" && (
                 <div className="space-y-6">
+                  {pageData.heroImage && (
+                    <div className="w-full h-36 sm:h-44 rounded-3xl overflow-hidden shadow-md border-2 border-amber-300 relative group">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Hindi Barakhadi Classroom"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-end p-4">
+                        <div className="text-white space-y-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                            IOIS सचित्र डिजिटल हिंदी वर्णमाला
+                          </span>
+                          <h4 className="text-base sm:text-lg font-black text-white">
+                            '{pageData.heroCharacter}' की सम्पूर्ण बारहखड़ी (12 Matras)
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="text-center space-y-1">
                     <h3 className="text-3xl font-black text-slate-800 dark:text-amber-400">
                       '{pageData.heroCharacter}' की सम्पूर्ण बारहखड़ी (12 Matras)
@@ -979,7 +1135,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                   </div>
 
                   {pageData.lines && (
-                    <div className="p-4 bg-amber-50 dark:bg-slate-900 rounded-2xl border border-amber-200 text-xs space-y-1.5">
+                    <div className="p-4 bg-amber-50 dark:bg-slate-900 rounded-2xl border border-amber-200 text-xs space-y-1.5 shadow-sm">
                       <strong className="text-amber-900 dark:text-amber-300 block mb-1">
                         मात्रा तालिका:
                       </strong>
@@ -996,52 +1152,103 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               {/* 7. WORD FORMATION (Pages 186 to 225) */}
               {pageData.type === "words" && (
                 <div className="space-y-6">
-                  <div className="text-center space-y-1">
-                    <div className="text-5xl mb-2">{pageData.heroCharacter}</div>
-                    <h3 className="text-3xl font-black text-slate-800 dark:text-amber-400">
-                      {pageData.title}
-                    </h3>
-                    <p className="text-xs text-slate-500">{pageData.subtitle}</p>
-                  </div>
-
-                  {pageData.examples && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {pageData.examples.map((w, i) => (
-                        <div
-                          key={i}
-                          className="p-4 bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 text-center shadow-sm"
-                        >
-                          <span className="text-2xl mb-1 block">✏️</span>
-                          <span className="text-2xl font-black text-blue-600 dark:text-blue-400">
-                            {w.text}
-                          </span>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-200 dark:border-slate-700 shadow-lg">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-blue-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-blue-300 mb-3 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
-                      ))}
+                      ) : (
+                        <div className="text-5xl mb-2">{pageData.heroCharacter}</div>
+                      )}
+                      <h4 className="text-2xl font-black text-slate-800 dark:text-blue-400">
+                        {pageData.heroCharacter}
+                      </h4>
+                      <span className="text-xs font-bold text-slate-500 mt-1">सचित्र शब्द ज्ञान</span>
                     </div>
-                  )}
+
+                    <div className="md:col-span-7 space-y-4">
+                      <div>
+                        <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                          शब्द रचना ज्ञान
+                        </span>
+                        <h3 className="text-3xl font-black text-slate-800 dark:text-amber-400 mt-2">
+                          {pageData.title}
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">{pageData.subtitle}</p>
+                      </div>
+
+                      {pageData.examples && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                          {pageData.examples.map((w, i) => (
+                            <div
+                              key={i}
+                              className="p-3 bg-white dark:bg-slate-900 rounded-xl border-2 border-amber-200 dark:border-slate-700 text-center shadow-sm hover:scale-105 transition-transform"
+                            >
+                              <span className="text-xl font-black text-blue-600 dark:text-blue-400 block">
+                                {w.text}
+                              </span>
+                              {w.sub && (
+                                <span className="text-[10px] text-slate-500 font-medium">
+                                  {w.sub}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* 8. POEM (Pages 226 to 260) */}
               {pageData.type === "poem" && (
                 <div className="space-y-6">
-                  <div className="text-center space-y-2">
-                    <div className="text-6xl animate-bounce">{pageData.heroCharacter}</div>
-                    <h3 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-amber-400">
-                      {pageData.title}
-                    </h3>
-                    <p className="text-xs text-slate-500">{pageData.subtitle}</p>
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-200 dark:border-slate-700 shadow-lg">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-teal-50 to-emerald-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-teal-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-teal-300 mb-2 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-6xl animate-bounce mb-2">{pageData.heroCharacter}</div>
+                      )}
+                      <span className="text-xs font-black uppercase text-teal-800 dark:text-teal-300 tracking-wider">
+                        सचित्र बाल कविता दृश्य
+                      </span>
+                    </div>
 
-                  <div className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-2 border-amber-300 dark:border-slate-700 text-center space-y-3 shadow-inner">
-                    {pageData.lines?.map((line, i) => (
-                      <p
-                        key={i}
-                        className="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100"
-                      >
-                        {line}
-                      </p>
-                    ))}
+                    <div className="md:col-span-7 space-y-3">
+                      <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                        प्रसिद्ध बालगीत
+                      </span>
+                      <h3 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-amber-400">
+                        {pageData.title}
+                      </h3>
+                      <p className="text-xs text-slate-500">{pageData.subtitle}</p>
+
+                      <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-900 rounded-2xl border-2 border-amber-300 dark:border-slate-700 text-center space-y-2 shadow-inner">
+                        {pageData.lines?.map((line, i) => (
+                          <p
+                            key={i}
+                            className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100"
+                          >
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1049,61 +1256,96 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               {/* 9. MORAL STORY (Pages 261 to 295) */}
               {pageData.type === "story" && (
                 <div className="space-y-6">
-                  <div className="text-center space-y-2">
-                    <div className="text-6xl">{pageData.heroCharacter}</div>
-                    <h3 className="text-3xl font-black text-slate-900 dark:text-amber-400">
-                      {pageData.title}
-                    </h3>
-                    <p className="text-xs text-slate-500">{pageData.subtitle}</p>
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-200 dark:border-slate-700 shadow-lg">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-amber-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-amber-300 mb-2 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-6xl mb-2">{pageData.heroCharacter}</div>
+                      )}
+                      <span className="text-xs font-black uppercase text-amber-700 dark:text-amber-400 tracking-wider">
+                        सचित्र प्रेरक कहानी दृश्य
+                      </span>
+                    </div>
 
-                  <div className="p-6 bg-white dark:bg-slate-800 rounded-3xl border-2 border-amber-200 dark:border-slate-700 space-y-3 text-slate-700 dark:text-slate-200 text-sm sm:text-base leading-relaxed">
-                    {pageData.lines?.map((para, i) => (
-                      <p
-                        key={i}
-                        className={
-                          para.startsWith("सीख")
-                            ? "p-3 bg-amber-100 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200 rounded-xl font-bold mt-3 border border-amber-300"
-                            : ""
-                        }
-                      >
-                        {para}
-                      </p>
-                    ))}
+                    <div className="md:col-span-7 space-y-3">
+                      <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        नैतिक शिक्षा व सचित्र कहानी
+                      </span>
+                      <h3 className="text-3xl font-black text-slate-900 dark:text-amber-400">
+                        {pageData.title}
+                      </h3>
+                      <p className="text-xs text-slate-500">{pageData.subtitle}</p>
+
+                      <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-amber-200 dark:border-slate-700 space-y-2 text-slate-700 dark:text-slate-200 text-xs sm:text-sm leading-relaxed max-h-64 overflow-y-auto shadow-inner">
+                        {pageData.lines?.map((para, i) => (
+                          <p
+                            key={i}
+                            className={
+                              para.startsWith("सीख")
+                                ? "p-3 bg-amber-100 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200 rounded-xl font-bold mt-2 border border-amber-300"
+                                : ""
+                            }
+                          >
+                            {para}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* 10. COUNTING 1 TO 50 (Pages 296 to 345) */}
-              {pageData.type === "counting_item" && (
+              {/* 10. COUNTING 1 TO 100 (Pages 296 to 395) */}
+              {(pageData.type === "counting_item" || pageData.type === "counting_advanced") && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-300 dark:border-slate-700 shadow-lg">
-                    <div className="md:col-span-4 text-center p-6 bg-amber-50 dark:bg-slate-900 rounded-2xl border border-amber-200">
-                      <div className="text-8xl font-black text-orange-600 dark:text-amber-400">
+                    <div className="md:col-span-5 text-center p-4 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-amber-200 flex flex-col items-center">
+                      {pageData.heroImage && (
+                        <div className="w-full max-w-[240px] rounded-2xl overflow-hidden shadow-md border-2 border-amber-300 mb-3 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      <div className="text-7xl font-black text-orange-600 dark:text-amber-400">
                         {pageData.heroCharacter}
                       </div>
-                      <div className="text-xl font-black text-slate-800 dark:text-slate-100 mt-2">
-                        {pageData.heroWordHi} ({pageData.heroWord})
+                      <div className="text-xl font-black text-slate-800 dark:text-slate-100 mt-1">
+                        {pageData.heroWordHi || pageData.title} {pageData.heroWord ? `(${pageData.heroWord})` : ""}
                       </div>
                     </div>
 
-                    <div className="md:col-span-8 space-y-4">
+                    <div className="md:col-span-7 space-y-4">
                       <div>
-                        <h3 className="text-2xl font-black text-slate-900 dark:text-white">
-                          संख्या {pageData.heroCharacter} की सचित्र गणना (Counting)
+                        <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
+                          सचित्र संख्या गणना (Counting)
+                        </span>
+                        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2">
+                          संख्या {pageData.heroCharacter} की सचित्र गणना
                         </h3>
                         <p className="text-xs text-slate-500">{pageData.subtitle}</p>
                       </div>
 
                       {/* Visual Objects to Count */}
-                      <div className="p-4 bg-amber-50/60 dark:bg-slate-900/60 rounded-2xl border border-amber-200 flex flex-wrap gap-3 items-center justify-center max-h-48 overflow-y-auto">
-                        {Array.from({ length: Math.min(50, parseInt(pageData.heroCharacter || "1", 10)) }).map(
-                          (_, i) => (
-                            <span key={i} className="text-3xl sm:text-4xl animate-pulse">
-                              {["🎈", "🍎", "⭐", "⚽", "🍓"][i % 5]}
-                            </span>
-                          )
-                        )}
+                      <div className="p-4 bg-amber-50/60 dark:bg-slate-900/60 rounded-2xl border border-amber-200 flex flex-wrap gap-2.5 items-center justify-center max-h-48 overflow-y-auto">
+                        {Array.from({
+                          length: Math.min(50, parseInt(pageData.heroCharacter || "1", 10) || 1),
+                        }).map((_, i) => (
+                          <span key={i} className="text-3xl sm:text-4xl animate-pulse">
+                            {["🎈", "🍎", "⭐", "⚽", "🍓", "🚗", "🧸"][i % 7]}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1113,6 +1355,27 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
               {/* 11. TABLES (Pages 396 to 435) */}
               {pageData.type === "table" && (
                 <div className="space-y-6">
+                  {pageData.heroImage && (
+                    <div className="w-full h-36 sm:h-44 rounded-3xl overflow-hidden shadow-md border-2 border-indigo-300 relative group">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Math Table & Abacus"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-end p-4">
+                        <div className="text-white space-y-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                            IOIS गणितीय गुणन तालिका (Multiplication Table)
+                          </span>
+                          <h4 className="text-base sm:text-lg font-black text-white">
+                            {pageData.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="text-center space-y-1">
                     <h3 className="text-3xl font-black text-slate-800 dark:text-amber-400">
                       {pageData.title}
@@ -1141,6 +1404,27 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                 pageData.type === "multiplication" ||
                 pageData.type === "division") && (
                 <div className="space-y-6">
+                  {pageData.heroImage && (
+                    <div className="w-full h-36 sm:h-44 rounded-3xl overflow-hidden shadow-md border-2 border-emerald-300 relative group">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Math Learning"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-end p-4">
+                        <div className="text-white space-y-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                            IOIS सचित्र प्राथमिक गणित अभ्यास
+                          </span>
+                          <h4 className="text-base sm:text-lg font-black text-white">
+                            {pageData.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="text-center space-y-1">
                     <h3 className="text-3xl font-black text-slate-800 dark:text-amber-400">
                       {pageData.title}
@@ -1174,16 +1458,195 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                 </div>
               )}
 
-              {/* 13. CERTIFICATE (Page 720) */}
+              {/* 13. COLORS & SHAPES (Pages 561 - 590) */}
+              {(pageData.type === "colors" || pageData.type === "shapes") && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-300 dark:border-slate-700 shadow-lg">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-purple-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-purple-300 mb-3 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-6xl mb-2">{pageData.heroCharacter}</div>
+                      )}
+                      <div className="text-2xl font-black text-purple-700 dark:text-purple-300">
+                        {pageData.heroWordHi || pageData.title}
+                      </div>
+                      <span className="text-xs font-bold text-slate-500 mt-0.5">
+                        {pageData.heroWord}
+                      </span>
+                    </div>
+
+                    <div className="md:col-span-7 space-y-4">
+                      <div>
+                        <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-300">
+                          {pageData.type === "colors" ? "रंगों की पहचान" : "ज्यामितीय आकृतियां"}
+                        </span>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-2">
+                          {pageData.title}
+                        </h3>
+                        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">
+                          {pageData.subtitle}
+                        </p>
+                      </div>
+
+                      {pageData.examples && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {pageData.examples.map((ex, i) => (
+                            <div
+                              key={i}
+                              className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 shadow-sm"
+                            >
+                              <span className="text-2xl">{ex.icon}</span>
+                              <div>
+                                <div className="font-black text-xs">{ex.text}</div>
+                                <div className="text-[10px] text-slate-500">{ex.sub}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 14. GENERAL KNOWLEDGE & NATURE (Pages 591 - 650) */}
+              {pageData.type === "gk" && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white/95 dark:bg-slate-800 p-6 rounded-3xl border-2 border-amber-300 dark:border-slate-700 shadow-lg">
+                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-emerald-200">
+                      {pageData.heroImage ? (
+                        <div className="w-full max-w-[260px] rounded-2xl overflow-hidden shadow-xl border-2 border-emerald-300 mb-3 group">
+                          <img
+                            src={pageData.heroImage}
+                            alt={pageData.title}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-6xl mb-2">{pageData.heroCharacter}</div>
+                      )}
+                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+                        {pageData.heroWordHi || pageData.title}
+                      </div>
+                      <span className="text-xs font-bold text-slate-500 mt-0.5">
+                        {pageData.heroWord}
+                      </span>
+                    </div>
+
+                    <div className="md:col-span-7 space-y-4">
+                      <div>
+                        <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          सामान्य ज्ञान व प्रकृति दर्शन
+                        </span>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-2">
+                          {pageData.title}
+                        </h3>
+                        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">
+                          {pageData.subtitle}
+                        </p>
+                      </div>
+
+                      {pageData.examples && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {pageData.examples.map((ex, i) => (
+                            <div
+                              key={i}
+                              className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 shadow-sm"
+                            >
+                              <span className="text-2xl">{ex.icon}</span>
+                              <div>
+                                <div className="font-black text-xs">{ex.text}</div>
+                                <div className="text-[10px] text-slate-500">{ex.sub}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 15. HOMEWORK & PRACTICE (Pages 651 - 719) */}
+              {pageData.type === "homework" && (
+                <div className="space-y-6">
+                  {pageData.heroImage && (
+                    <div className="w-full h-36 sm:h-44 rounded-3xl overflow-hidden shadow-md border-2 border-amber-400 relative group">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Homework Study Desk"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-end p-4">
+                        <div className="text-white space-y-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                            IOIS दैनिक गृहकार्य वर्कबुक (Daily Homework)
+                          </span>
+                          <h4 className="text-base sm:text-lg font-black text-white">
+                            {pageData.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-6 bg-white dark:bg-slate-800 rounded-3xl border-2 border-amber-300 dark:border-slate-700 shadow-md space-y-4">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                      <Edit3 className="w-6 h-6" />
+                      <h3 className="text-2xl font-black">{pageData.title}</h3>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                      {pageData.homeworkTask || pageData.subtitle}
+                    </p>
+
+                    <div className="p-4 bg-amber-50 dark:bg-slate-900 rounded-2xl border border-amber-200 space-y-3">
+                      <span className="text-xs font-black uppercase text-amber-900 dark:text-amber-300 block">
+                        📝 निर्देश व अभ्यास प्रश्न:
+                      </span>
+                      {pageData.lines?.map((task, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+                          <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            {i + 1}
+                          </span>
+                          <p>{task}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 16. CERTIFICATE (Page 720) */}
               {pageData.type === "certificate" && (
                 <div className="p-8 bg-gradient-to-b from-amber-50 via-yellow-50 to-amber-100 dark:from-slate-900 dark:to-slate-800 rounded-3xl border-8 border-amber-400 dark:border-amber-600 shadow-2xl text-center space-y-6 relative overflow-hidden">
+                  {pageData.heroImage && (
+                    <div className="w-full max-w-sm mx-auto h-36 rounded-2xl overflow-hidden shadow-lg border-2 border-amber-300 mb-2">
+                      <img
+                        src={pageData.heroImage}
+                        alt="Royal Certificate Seal"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
                   <div className="w-20 h-20 mx-auto rounded-full bg-amber-500 text-white flex items-center justify-center shadow-xl shadow-amber-500/40">
                     <Award className="w-12 h-12" />
                   </div>
 
                   <div className="space-y-2">
                     <span className="text-xs font-black uppercase tracking-widest text-amber-800 dark:text-amber-300">
-                      IOIS PLATFORM • आधिकारिक प्रमाण-पत्र
+                      IOIS बाल विकास • आधिकारिक प्रमाण-पत्र
                     </span>
                     <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white">
                       बाल विकास सफलता प्रमाण-पत्र
@@ -1204,7 +1667,7 @@ export const BalVikasPustikaSection: React.FC<BalVikasPustikaSectionProps> = ({
                       यूनिक सदस्य ID: <span className="font-mono font-bold">{user?.uniqueId || "IOIS-MEMBER"}</span>
                     </p>
                     <p className="text-xs text-slate-700 dark:text-slate-300 pt-2 font-medium">
-                      ने "बाल विकास: सम्पूर्ण डिजिटल अध्ययन पुस्तिका" के सभी 720 पृष्ठों का अध्ययन, सुलेख, पहाड़ा, कविताएं व गृहकार्य सफलतापूर्वक पूर्ण किया है।
+                      ने "IOIS बाल विकास: सम्पूर्ण डिजिटल अध्ययन पुस्तिका" के सभी 720 पृष्ठों का अध्ययन, सुलेख, पहाड़ा, कविताएं व गृहकार्य सफलतापूर्वक पूर्ण किया है।
                     </p>
                   </div>
 

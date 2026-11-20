@@ -89,11 +89,20 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
   const [sponsorId, setSponsorId] = useState<string>("IOIS999VK01");
   const [utrNumber, setUtrNumber] = useState<string>("");
 
-  // Forgot password state
+  // 2FA state for Login
+  const [loginRequires2FA, setLoginRequires2FA] = useState<boolean>(false);
+  const [login2FACode, setLogin2FACode] = useState<string>("");
+
+  // Forgot password & ID recovery state
+  const [recoverySubTab, setRecoverySubTab] = useState<"password" | "userid">("password");
+  const [forgotUniqueId, setForgotUniqueId] = useState<string>("");
   const [forgotContact, setForgotContact] = useState<string>("");
   const [forgotOtp, setForgotOtp] = useState<string>("");
   const [forgotNewPassword, setForgotNewPassword] = useState<string>("");
   const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [recoveredUserInfo, setRecoveredUserInfo] = useState<{ id: string; name: string } | null>(null);
+  const [findIdEmail, setFindIdEmail] = useState<string>("");
+  const [findIdMobile, setFindIdMobile] = useState<string>("");
 
   // Handle Member Login - Direct access for registered members from github.io & server
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -104,6 +113,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
 
     try {
       let verifiedMember: UserProfile | null = null;
+      let backendAttempted = false;
 
       // 1. Try Backend API
       try {
@@ -113,11 +123,20 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
           body: JSON.stringify({
             identifier: loginIdentifier.trim(),
             password: loginPassword,
+            twoFactorCode: loginRequires2FA ? login2FACode.trim() : undefined,
           }),
         });
 
+        backendAttempted = true;
+        const data = await res.json().catch(() => ({}));
+
         if (res.ok) {
-          const data = await res.json();
+          if (data.requires2FA) {
+            setLoginRequires2FA(true);
+            setSuccessMessage(data.message || "2FA सुरक्षा कोड आपके पंजीकृत मोबाइल पर भेजा गया है। कृपया कोड दर्ज करें।");
+            setLoading(false);
+            return;
+          }
           if (data.user) {
             verifiedMember = {
               ...data.user,
@@ -125,63 +144,26 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               paymentStatus: "verified",
             };
           }
+        } else if (res.status === 401 || res.status === 400 || res.status === 404 || res.status === 429) {
+          // Reject immediately if server returned invalid credentials or lockout error
+          throw new Error(data.error || "लॉगिन विफल! अमान्य यूजर आईडी या गलत पासवर्ड।");
         }
-      } catch (fetchErr) {
+      } catch (fetchErr: unknown) {
+        const msg = fetchErr instanceof Error ? fetchErr.message : "";
+        if (msg.includes("लॉगिन विफल") || msg.includes("गलत") || msg.includes("खाता नहीं मिला") || msg.includes("अमान्य") || msg.includes("सुरक्षा लॉक")) {
+          throw fetchErr;
+        }
         console.warn("Backend API not reachable (GitHub Pages or offline):", fetchErr);
       }
 
-      // 2. If not obtained via backend, search Firestore and LocalStorage
-      if (!verifiedMember) {
+      // 2. If backend was unreachable (e.g. static GitHub Pages), search Firestore / LocalStorage
+      if (!verifiedMember && !backendAttempted) {
         const found = await findUserInCloudOrLocal(loginIdentifier.trim(), loginPassword);
         if (found) {
           verifiedMember = {
             ...found,
             isDemo: false,
             paymentStatus: "verified",
-          };
-        }
-      }
-
-      // 3. Fallback for valid registered member from https://ioisplatform.github.io/
-      if (!verifiedMember) {
-        const clean = loginIdentifier.trim();
-        const digits = clean.replace(/\D/g, "");
-        if (
-          clean.toUpperCase().startsWith("IOIS") ||
-          digits.length >= 10 ||
-          clean.includes("@")
-        ) {
-          verifiedMember = {
-            uniqueId: clean.toUpperCase().startsWith("IOIS")
-              ? clean.toUpperCase()
-              : `IOIS10${clean.slice(-4).toUpperCase() || "MB01"}`,
-            name: clean.includes("@") ? clean.split("@")[0] : "IOIS Member",
-            email: clean.includes("@") ? clean : `${digits || "member"}@iois.in`,
-            mobile: digits.length >= 10 ? digits : "9876543210",
-            password: loginPassword,
-            planId: "bal_vikas_10",
-            planName: "डिजिटल बाल विकास सम्पूर्ण किट",
-            planPrice: 10,
-            paymentStatus: "verified",
-            referralEarnings: 0,
-            twoFactorEnabled: false,
-            city: "Bihar",
-            designation: "Verified Student Member",
-            registeredAt: new Date().toISOString(),
-            devices: [],
-            progress: {
-              hindiProgress: 10,
-              englishProgress: 10,
-              mathProgress: 10,
-              drawingCount: 1,
-              quizzesCompleted: 1,
-              quizAccuracy: 100,
-              studyTimeMinutes: 30,
-              streakDays: 1,
-              badges: ["badge_starter"],
-              savedDrawings: [],
-              classGrade: "Class 1",
-            },
           };
         }
       }
@@ -193,11 +175,131 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
           onSuccessLogin(verifiedMember!);
         }, 400);
       } else {
-        throw new Error("लॉगिन विफल। कृपया सही आईडी व पासवर्ड दर्ज करें।");
+        throw new Error("लॉगिन विफल! अमान्य यूजर आईडी या गलत पासवर्ड। कृपया सही जानकारी दर्ज करें या नया पंजीकरण करें।");
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "लॉगिन विफल। कृपया सही आईडी व पासवर्ड दर्ज करें।";
+      const msg = err instanceof Error ? err.message : "लॉगिन विफल! अमान्य यूजर आईडी या गलत पासवर्ड।";
       setErrorMessage(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Secure Password Recovery - Step 1: Send OTP
+  const handleSendRecoveryOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
+
+    try {
+      if (!forgotUniqueId.trim() || !forgotContact.trim()) {
+        throw new Error("कृपया अपनी यूजर ID और पंजीकृत मोबाइल या ईमेल दोनों दर्ज करें।");
+      }
+
+      const res = await fetch("/api/auth/recover-password/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uniqueId: forgotUniqueId.trim(),
+          contact: forgotContact.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "सत्यापन विफल हुआ।");
+      }
+
+      setOtpSent(true);
+      setSuccessMessage(data.message || "सत्यापन कोड आपके पंजीकृत विवरण पर भेज दिया गया है।");
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "सत्यापन प्रक्रिया में त्रुटि आई।");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Secure Password Recovery - Step 2: Reset Password
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!forgotOtp.trim()) {
+      setErrorMessage("कृपया 6-अंकों का सत्यापन कोड (OTP) दर्ज करें।");
+      return;
+    }
+    if (!forgotNewPassword || forgotNewPassword.length < 4) {
+      setErrorMessage("नया पासवर्ड कम से कम 4 अक्षरों का होना चाहिए।");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/recover-password/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uniqueId: forgotUniqueId.trim(),
+          code: forgotOtp.trim(),
+          newPassword: forgotNewPassword.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "पासवर्ड रीसेट विफल हुआ।");
+      }
+
+      setSuccessMessage("पासवर्ड सफलतापूर्वक बदल गया है! अब नए पासवर्ड से लॉगिन करें।");
+      setLoginIdentifier(forgotUniqueId.trim());
+      setLoginPassword(forgotNewPassword.trim());
+      setTimeout(() => {
+        setActiveTab("login");
+        setOtpSent(false);
+        setForgotOtp("");
+        setForgotNewPassword("");
+      }, 1200);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "पासवर्ड अपडेट में त्रुटि आई।");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Secure User ID Recovery
+  const handleFindUserIdSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!findIdEmail.trim() || !findIdMobile.trim()) {
+      setErrorMessage("कृपया पंजीकृत ईमेल और पंजीकृत मोबाइल नंबर दोनों दर्ज करें।");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/recover-userid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: findIdEmail.trim(),
+          mobile: findIdMobile.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "खाता नहीं मिला।");
+      }
+
+      setRecoveredUserInfo({ id: data.uniqueId, name: data.name });
+      setSuccessMessage(`सत्यापन सफल! आपकी यूजर ID है: ${data.uniqueId}`);
+      setLoginIdentifier(data.uniqueId);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "यूजर ID खोजने में त्रुटि आई।");
     } finally {
       setLoading(false);
     }
@@ -252,8 +354,32 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
 
       if (!createdUser) {
         const cleanMobile = regMobile.trim().replace(/\D/g, "");
-        const initials = (regName.trim().slice(0, 2) || "MB").toUpperCase();
-        const seq = Date.now().toString().slice(-2);
+        const words = regName.trim().split(/\s+/).filter(Boolean);
+        let initials = "ST";
+        if (words.length >= 2) {
+          initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
+        } else if (words.length === 1 && words[0].length >= 2) {
+          initials = words[0].substring(0, 2).toUpperCase();
+        }
+        let nextSeq = 2;
+        try {
+          const stored = localStorage.getItem("iois_users_cloud") || localStorage.getItem("iois_registered_members");
+          if (stored) {
+            const list = JSON.parse(stored);
+            if (Array.isArray(list)) {
+              let maxN = 1;
+              for (const u of list) {
+                const m = (u.uniqueId || "").match(/(\d{2,})$/);
+                if (m) {
+                  const n = parseInt(m[1], 10);
+                  if (!isNaN(n) && n > maxN) maxN = n;
+                }
+              }
+              nextSeq = Math.max(list.length + 1, maxN + 1);
+            }
+          }
+        } catch {}
+        const seq = nextSeq.toString().padStart(2, "0");
         createdUser = {
           uniqueId: `IOIS10${initials}${seq}`,
           name: regName.trim(),
@@ -325,15 +451,15 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-base font-black text-slate-900 dark:text-amber-400 tracking-tight">
-                  IOIS PLATFORM
+                <span className="text-base sm:text-lg font-black text-slate-900 dark:text-amber-400 tracking-tight">
+                  IOIS बाल विकास
                 </span>
                 <span className="text-[10px] uppercase font-black bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full shadow-sm hidden sm:inline-block">
                   INDIA 🇮🇳
                 </span>
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-semibold">
-                Indian Online Income Supporting System • 100% पारदर्शी डिजिटल लर्निंग
+                सम्पूर्ण डिजिटल बाल विकास व शिक्षा पोर्टल • 700+ पृष्ठ अध्ययन पुस्तिका
               </span>
             </div>
           </div>
@@ -421,7 +547,7 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
               }`}
             >
               <Bot className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>चिंटू AI शिक्षक</span>
+              <span>बाल गुरु AI शिक्षक</span>
             </button>
           </nav>
 
@@ -572,21 +698,55 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
                     </div>
                   </div>
 
+                  {loginRequires2FA && (
+                    <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-300 dark:border-amber-700 animate-in fade-in space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-200">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        <span>2FA सुरक्षा कोड (Enter 6-Digit Verification Code)</span>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={login2FACode}
+                        onChange={(e) => setLogin2FACode(e.target.value)}
+                        placeholder="6-अंकों का 2FA कोड दर्ज करें"
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-600 rounded-xl text-sm font-mono font-bold tracking-widest text-center"
+                      />
+                      <p className="text-[10px] text-amber-700 dark:text-amber-300">
+                        सुरक्षा कोड आपके पंजीकृत मोबाइल नंबर पर भेजा गया है।
+                      </p>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={loading}
                     className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-amber-500/20 transition-transform active:scale-95 flex items-center justify-center gap-2"
                   >
                     {loading ? (
-                      <span>लॉगिन हो रहा है...</span>
+                      <span>सत्यापन हो रहा है...</span>
                     ) : (
                       <>
                         <UserCheck className="w-4 h-4" />
-                        <span>सदस्य लॉगिन करें (Enter Member Portal)</span>
+                        <span>{loginRequires2FA ? "2FA कोड सत्यापित कर प्रवेश करें" : "सदस्य लॉगिन करें (Secure Member Login)"}</span>
                       </>
                     )}
                   </button>
                 </form>
+
+                {/* Official Secure Login Information */}
+                <div className="mt-4 p-3.5 bg-amber-50/70 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800 text-xs space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span>256-Bit SSL सुरक्षित व एन्क्रिप्टेड लॉगिन (Bank-Grade Security)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    केवल वही सदस्य या छात्र लॉगिन कर सकते हैं जिनका इस पोर्टल पर सफलतापूर्वक पंजीकरण हुआ है अथवा जिन्हें एडमिन द्वारा अधिकृत किया गया है। किसी भी रैंडम लॉगिन की अनुमति नहीं है।
+                  </p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                    * सुरक्षा नीति: लगातार 5 गलत पासवर्ड दर्ज करने पर खाता 15 मिनट के लिए लॉक कर दिया जाता है।
+                  </p>
+                </div>
 
                 {/* Switch to Registration */}
                 <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center space-y-3">
@@ -771,87 +931,227 @@ export const UnauthenticatedPortal: React.FC<UnauthenticatedPortalProps> = ({
           <div className="flex-1 flex items-center justify-center py-4">
             <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
               <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 text-white text-center">
-                <h1 className="text-xl font-black">ID / पासवर्ड रिकवरी</h1>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-700/60 text-amber-300 text-xs font-bold uppercase tracking-wider mb-2">
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>सुरक्षित खाता रिकवरी पोर्टल</span>
+                </div>
+                <h1 className="text-xl font-black">खाता व क्रेडेंशियल रिकवरी</h1>
                 <p className="text-xs text-slate-300 mt-1">
-                  अपना पंजीकृत मोबाइल नंबर दर्ज करें और नया पासवर्ड सेट करें
+                  अपना पासवर्ड रीसेट करें अथवा अपनी पंजीकृत यूनिक यूजर ID प्राप्त करें
                 </p>
+
+                {/* Sub-tab navigation */}
+                <div className="grid grid-cols-2 gap-2 mt-4 p-1 bg-slate-950/50 rounded-xl border border-slate-700/50">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRecoverySubTab("password");
+                      setErrorMessage("");
+                      setSuccessMessage("");
+                    }}
+                    className={`py-2 text-xs font-bold rounded-lg transition-colors ${
+                      recoverySubTab === "password"
+                        ? "bg-amber-500 text-slate-950 shadow"
+                        : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    🔑 पासवर्ड रीसेट करें
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRecoverySubTab("userid");
+                      setErrorMessage("");
+                      setSuccessMessage("");
+                    }}
+                    className={`py-2 text-xs font-bold rounded-lg transition-colors ${
+                      recoverySubTab === "userid"
+                        ? "bg-amber-500 text-slate-950 shadow"
+                        : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    🆔 यूजर ID खोजें
+                  </button>
+                </div>
               </div>
 
               <div className="p-6 space-y-4">
                 {errorMessage && (
-                  <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
-                    {errorMessage}
+                  <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{errorMessage}</span>
                   </div>
                 )}
                 {successMessage && (
-                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
-                    {successMessage}
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>{successMessage}</span>
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    पंजीकृत मोबाइल नंबर
-                  </label>
-                  <input
-                    type="tel"
-                    value={forgotContact}
-                    onChange={(e) => setForgotContact(e.target.value)}
-                    placeholder="उदा: 9876543210"
-                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none"
-                  />
-                </div>
+                {/* MODE 1: PASSWORD RESET */}
+                {recoverySubTab === "password" && (
+                  <div className="space-y-4">
+                    {!otpSent ? (
+                      <form onSubmit={handleSendRecoveryOtp} className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            यूनिक यूजर ID (Unique Member ID)
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={forgotUniqueId}
+                            onChange={(e) => setForgotUniqueId(e.target.value)}
+                            placeholder="उदा: IOIS10RK01"
+                            className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          />
+                        </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpSent(true);
-                    setSuccessMessage("सत्यापन OTP: 123456 आपके नंबर पर भेजा गया है।");
-                  }}
-                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl"
-                >
-                  OTP प्राप्त करें
-                </button>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            पंजीकृत मोबाइल नंबर या ईमेल ID
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={forgotContact}
+                            onChange={(e) => setForgotContact(e.target.value)}
+                            placeholder="उदा: 9876543210 या yourname@gmail.com"
+                            className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          />
+                        </div>
 
-                {otpSent && (
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        OTP दर्ज करें
-                      </label>
-                      <input
-                        type="text"
-                        value={forgotOtp}
-                        onChange={(e) => setForgotOtp(e.target.value)}
-                        placeholder="6 अंकों का OTP (उदा: 123456)"
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        नया पासवर्ड दर्ज करें
-                      </label>
-                      <input
-                        type="password"
-                        value={forgotNewPassword}
-                        onChange={(e) => setForgotNewPassword(e.target.value)}
-                        placeholder="नया पासवर्ड"
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSuccessMessage("पासवर्ड सफलतापूर्वक रीसेट हो गया है! अब सदस्य लॉगिन करें।");
-                        setTimeout(() => {
-                          setActiveTab("login");
-                        }, 900);
-                      }}
-                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl"
-                    >
-                      पासवर्ड अपडेट करें
-                    </button>
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {loading ? "सत्यापन कोड भेजा जा रहा है..." : "सुरक्षित OTP सत्यापन कोड भेजें"}
+                        </button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleResetPasswordSubmit} className="space-y-3 pt-1">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-800 text-xs">
+                          <span className="font-bold text-amber-900 dark:text-amber-200 block">
+                            आईडी: {forgotUniqueId}
+                          </span>
+                          <span className="text-[11px] text-amber-700 dark:text-amber-300">
+                            सत्यापन कोड आपके पंजीकृत नंबर/ईमेल पर भेजा जा चुका है। यह कोड 15 मिनट के लिए मान्य है।
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            6-अंकों का सत्यापन OTP कोड
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={forgotOtp}
+                            onChange={(e) => setForgotOtp(e.target.value)}
+                            placeholder="6-अंकों का OTP कोड"
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold tracking-widest text-center"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            नया पासवर्ड (New Password - न्यूनतम 4 अक्षर)
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            value={forgotNewPassword}
+                            onChange={(e) => setForgotNewPassword(e.target.value)}
+                            placeholder="नया पासवर्ड बनाएं"
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium"
+                          />
+                        </div>
+
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setOtpSent(false)}
+                            className="w-1/3 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl"
+                          >
+                            वापस
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow"
+                          >
+                            {loading ? "पासवर्ड बदला जा रहा है..." : "पासवर्ड अपडेट करें"}
+                          </button>
+                        </div>
+                      </form>
+                    )}
                   </div>
+                )}
+
+                {/* MODE 2: USER ID RECOVERY */}
+                {recoverySubTab === "userid" && (
+                  <form onSubmit={handleFindUserIdSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        पंजीकृत ईमेल ID (Registered Email)
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={findIdEmail}
+                        onChange={(e) => setFindIdEmail(e.target.value)}
+                        placeholder="उदा: student@gmail.com"
+                        className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        पंजीकृत मोबाइल नंबर (Registered 10-Digit Mobile)
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={findIdMobile}
+                        onChange={(e) => setFindIdMobile(e.target.value)}
+                        placeholder="उदा: 9876543210"
+                        className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {loading ? "खोजा जा रहा है..." : "मेरी यूजर ID खोजें"}
+                    </button>
+
+                    {recoveredUserInfo && (
+                      <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-300 dark:border-emerald-700 space-y-2">
+                        <div className="text-xs text-emerald-800 dark:text-emerald-200">
+                          सदस्य का नाम: <span className="font-bold">{recoveredUserInfo.name}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-base font-black text-emerald-900 dark:text-emerald-100">
+                            {recoveredUserInfo.id}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLoginIdentifier(recoveredUserInfo.id);
+                              setActiveTab("login");
+                            }}
+                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow"
+                          >
+                            इस ID से लॉगिन करें →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </form>
                 )}
 
                 <div className="text-center pt-2">

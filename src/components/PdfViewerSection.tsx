@@ -302,11 +302,56 @@ export const PdfViewerSection: React.FC<PdfViewerSectionProps> = ({
     );
   };
 
-  // PAGE 1: Grand Official Cover & Preface
+  // PAGE 1: Grand Official Cover & Uploaded Document with Premium Border
   const renderPage1Cover = () => (
-    <div className="space-y-4 sm:space-y-5 text-center">
-      <div className="inline-block p-2 px-4 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-widest border border-amber-300">
-        प्राथमिक बाल विकास एवं स्वावलंबन प्रवेशिका
+    <div className="space-y-6 text-center">
+      {/* Ornate Badge */}
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white text-xs font-black uppercase tracking-widest shadow-md border-2 border-amber-300">
+        <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+        <span>IOIS प्राथमिक बाल विकास एवं स्वावलंबन प्रवेशिका (आधिकारिक पुस्तक)</span>
+      </div>
+
+      {/* THE UPLOADED DOCUMENT PAGE WITH ROYAL GOLDEN BOOK BORDER */}
+      <div className="relative mx-auto max-w-lg">
+        {/* Outer Ornate Double Gold Border */}
+        <div className="p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-4 border-amber-600 shadow-2xl relative">
+          {/* Corner Ornamental Medallions */}
+          <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+            ❖
+          </div>
+          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+            ❖
+          </div>
+          <div className="absolute -bottom-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+            ❖
+          </div>
+          <div className="absolute -bottom-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-yellow-200 flex items-center justify-center text-xs text-yellow-100 font-serif font-black shadow-md z-20">
+            ❖
+          </div>
+
+          {/* Inner Document Frame with Spine Shading */}
+          <div className="relative rounded-2xl overflow-hidden shadow-inner border-2 border-amber-800/60 bg-white">
+            <img
+              src="/src/assets/images/bal_vikas_cover_1789232263344.jpg"
+              alt="IOIS Bal Vikas Uploaded Cover Page"
+              referrerPolicy="no-referrer"
+              className="w-full h-auto object-cover select-none"
+            />
+            {/* Subtle Book Spine Shadow Overlay */}
+            <div className="absolute top-0 bottom-0 left-0 w-4 bg-gradient-to-r from-black/25 via-black/10 to-transparent pointer-events-none" />
+          </div>
+
+          {/* Golden Seal of Authenticity below page */}
+          <div className="mt-2.5 flex items-center justify-between text-[11px] font-bold text-amber-950 px-2">
+            <span className="flex items-center gap-1 text-red-800 font-black">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 inline" />
+              <span>प्रमाणित मूल अपलोड पृष्ठ (Original Document Page)</span>
+            </span>
+            <span className="bg-amber-300/80 px-2 py-0.5 rounded-full border border-amber-500 text-[10px]">
+              IOIS अधिकारिक प्रकाशन
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="border-4 border-double border-amber-800/40 p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-amber-50/50 to-white shadow-inner">

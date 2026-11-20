@@ -44,7 +44,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
 
     switch (currentTab) {
       case "dashboard":
-        message = `नमस्ते ${studentName}! मैं तुम्हारा AI लाइव टीचर चिंटू हूँ! आज हम क्या पढ़ना चाहते हैं? 700+ पृष्ठों की बाल विकास पुस्तक, A to Z पेंसिल वीडियो, या 3D शरीर के अंग?`;
+        message = `नमस्ते ${studentName}! मैं आपका AI शिक्षक बाल गुरु हूँ! आज हम क्या पढ़ना चाहते हैं? 700+ पृष्ठों की बाल विकास पुस्तक, 4-लाइन अंग्रेजी ट्रेसिंग, या 3D शरीर के अंग?`;
         mood = "waving";
         break;
       case "bal_vikas_pustika":
@@ -144,7 +144,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
   };
 
   return (
-    <aside aria-label="AI Cartoon Teacher Chintu" className="fixed bottom-4 right-4 z-40 max-w-sm sm:max-w-md select-none">
+    <aside aria-label="AI Cartoon Teacher Baal Guru" className="fixed bottom-4 right-4 z-40 max-w-sm sm:max-w-md select-none">
       {/* Minimized Floating Button */}
       {!isOpen && (
         <button
@@ -156,10 +156,10 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
         >
           {/* Animated Avatar Icon */}
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-lg animate-bounce">
-            👦
+            👨‍🏫
           </div>
           <div className="text-left">
-            <span className="block text-xs font-black leading-tight">AI टीचर चिंटू</span>
+            <span className="block text-xs font-black leading-tight">AI शिक्षक बाल गुरु</span>
             <span className="text-[10px] text-amber-100 flex items-center gap-1">
               <Sparkles className="w-2.5 h-2.5" />
               <span>सिखाने के लिए तैयार</span>
@@ -179,7 +179,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
               </div>
               <div>
                 <h4 className="text-xs font-black tracking-wide flex items-center gap-1">
-                  <span>चिंटू • AI लाइव कार्टून शिक्षक</span>
+                  <span>बाल गुरु • AI लाइव शिक्षक</span>
                   <span className="px-1.5 py-0.2 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-black">
                     LIVE
                   </span>
@@ -323,7 +323,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
                 {/* Pointer Stick Hand Badge */}
                 <div
                   className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs shadow-md"
-                  title="चिंटू का जादुई पॉइंटर"
+                  title="बाल गुरु का जादुई पॉइंटर"
                 >
                   ✨
                 </div>
@@ -339,7 +339,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
                 {isSpeaking && (
                   <div className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1.5">
                     <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                    <span>चिंटू बोल रहा है...</span>
+                    <span>बाल गुरु बोल रहे हैं...</span>
                   </div>
                 )}
               </div>
@@ -348,7 +348,7 @@ export const ChintuCartoonTeacher: React.FC<ChintuCartoonTeacherProps> = ({
             {/* Quick Interactive Prompts for the Child */}
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-                चिंटू से पूछें (Ask Chintu):
+                बाल गुरु से पूछें (Ask Baal Guru):
               </div>
               <div className="grid grid-cols-2 gap-1.5 text-[11px]">
                 <button

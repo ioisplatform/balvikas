@@ -1,4 +1,5 @@
 // IOIS बाल विकास - 700+ पृष्ठ सम्पूर्ण डिजिटल अध्ययन पुस्तिका (Bal Vikas Workbook & E-Book)
+import { getRealPhotoForPage } from "./balVikasRealImages";
 
 export interface BookChapter {
   id: string;
@@ -923,9 +924,8 @@ export const HINDI_VYANJAN_DATA = [
 // Helper to calculate total pages: exactly 720 pages!
 export const TOTAL_PAGES = 720;
 
-// Resolve detailed page content dynamically for ANY page from 1 to 720
-export function getBalVikasPageData(pageNum: number): BalVikasPage {
-  const clampPage = Math.max(1, Math.min(TOTAL_PAGES, pageNum));
+// Internal resolver for page content
+function computeBalVikasPageData(clampPage: number): BalVikasPage {
 
   // PAGE 1: COVER
   if (clampPage === 1) {
@@ -1702,4 +1702,15 @@ export function getBalVikasPageData(pageNum: number): BalVikasPage {
     audioText: "बधाई हो! आपने बाल विकास डिजिटल अध्ययन पुस्तिका के सभी 720 पृष्ठ सफलतापूर्वक पूरे कर लिए हैं!",
     heroCharacter: "🏆",
   };
+}
+
+// Master exported resolver: Guarantees that EVERY SINGLE PAGE from 1 to 720 has a realistic HD photo
+export function getBalVikasPageData(pageNum: number): BalVikasPage {
+  const clampPage = Math.max(1, Math.min(TOTAL_PAGES, pageNum));
+  const page = computeBalVikasPageData(clampPage);
+  if (!page.heroImage) {
+    const photo = getRealPhotoForPage(page.pageNumber, page.type, page.heroCharacter, page.heroWord || page.title);
+    page.heroImage = photo.url;
+  }
+  return page;
 }

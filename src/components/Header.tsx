@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const navItems = [
-    { id: "dashboard", labelHi: "डैशबोर्ड", labelEn: "Dashboard", icon: "🏠" },
+    { id: "dashboard", labelHi: "यूजर डैशबोर्ड व ID कार्ड", labelEn: "User Dashboard & ID Card", icon: "💳" },
     { id: "bal_vikas_pustika", labelHi: "बाल विकास पुस्तिका (700+ पृष्ठ)", labelEn: "Bal Vikas Book (700+ Pgs)", icon: "📘" },
     { id: "pencil_tracing", labelHi: "✏️ पेंसिल ट्रेसिंग (A-Z & अ-ज्ञ)", labelEn: "Pencil Tracing Lab", icon: "✏️" },
     { id: "body_parts_3d", labelHi: "🫀 3D मानव शरीर रचना", labelEn: "3D Body Anatomy", icon: "🫀" },
@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: "flashcards", labelHi: "चित्र ज्ञान (GK)", labelEn: "Flashcards (GK)", icon: "🦁" },
     { id: "stories", labelHi: "कहानियाँ", labelEn: "Stories", icon: "📖" },
     { id: "quiz", labelHi: "क्विज़ & बैज", labelEn: "Quiz & Badges", icon: "🏆" },
-    { id: "chatbot", labelHi: "चिंटू AI टीचर", labelEn: "Chintu AI Teacher", icon: "🤖" },
+    { id: "chatbot", labelHi: "बाल गुरु AI शिक्षक", labelEn: "Baal Guru AI Teacher", icon: "🤖" },
     { id: "report", labelHi: "प्रगति पत्र (Report Card)", labelEn: "Report Card", icon: "📊" },
     { id: "pdf_viewer", labelHi: "बाल विकास अध्ययन सामग्री", labelEn: "Study Material", icon: "📚" },
   ];

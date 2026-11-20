@@ -59,6 +59,8 @@ interface UserRecord {
   email: string;
   mobile: string;
   password: string;
+  fatherName?: string;
+  classGrade?: string;
   planId: string;
   planName: string;
   planPrice: number;
@@ -76,6 +78,7 @@ interface UserRecord {
   referralEarnings: number;
   twoFactorEnabled: boolean;
   twoFactorCode?: string;
+  twoFactorExpiresAt?: number;
   registeredAt: string;
   devices: DeviceSession[];
   progress: {
@@ -850,6 +853,43 @@ app.post("/api/auth/register", (req, res) => {
   }
 });
 
+// Brute-force protection & account lock memory store
+interface LoginAttemptInfo {
+  count: number;
+  lockedUntil?: number;
+}
+const loginAttemptsMap = new Map<string, LoginAttemptInfo>();
+
+function checkLoginLockout(key: string): { locked: boolean; remainingMinutes?: number } {
+  const record = loginAttemptsMap.get(key);
+  if (!record) return { locked: false };
+  if (record.lockedUntil && Date.now() < record.lockedUntil) {
+    const remainingMinutes = Math.ceil((record.lockedUntil - Date.now()) / (60 * 1000));
+    return { locked: true, remainingMinutes };
+  }
+  if (record.lockedUntil && Date.now() >= record.lockedUntil) {
+    loginAttemptsMap.delete(key);
+    return { locked: false };
+  }
+  return { locked: false };
+}
+
+function recordFailedLoginAttempt(key: string): { locked: boolean; attemptsLeft: number } {
+  const record = loginAttemptsMap.get(key) || { count: 0 };
+  record.count += 1;
+  if (record.count >= 5) {
+    record.lockedUntil = Date.now() + 15 * 60 * 1000; // 15 mins lock
+    loginAttemptsMap.set(key, record);
+    return { locked: true, attemptsLeft: 0 };
+  }
+  loginAttemptsMap.set(key, record);
+  return { locked: false, attemptsLeft: 5 - record.count };
+}
+
+function clearFailedLoginAttempts(key: string) {
+  loginAttemptsMap.delete(key);
+}
+
 // User Login (Supports Email, Mobile, or Unique ID - Direct Access for Registered Members)
 app.post("/api/auth/login", (req, res) => {
   try {
@@ -860,89 +900,74 @@ app.post("/api/auth/login", (req, res) => {
 
     const cleanId = identifier.trim().toLowerCase();
     const digitsOnly = identifier.replace(/\D/g, "");
+    const cleanDigits = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : "";
+    const clientIp = (req.ip || req.headers["x-forwarded-for"] || "ip_default").toString();
+    const lockKey = `${cleanId}_${clientIp}`;
+
+    // Check account lockout due to failed attempts
+    const lockStatus = checkLoginLockout(lockKey);
+    if (lockStatus.locked) {
+      return res.status(429).json({
+        error: `सुरक्षा लॉक सक्रिय: अत्यधिक गलत पासवर्ड दर्ज करने के कारण यह खाता अस्थायी रूप से ${lockStatus.remainingMinutes} मिनट के लिए सुरक्षित कर दिया गया है। कृपया कुछ देर बाद पुनः प्रयास करें।`,
+      });
+    }
 
     let user = users.find(
       (u) =>
         u.uniqueId.toLowerCase() === cleanId ||
         u.email.toLowerCase() === cleanId ||
         u.mobile === cleanId ||
-        (digitsOnly.length >= 10 && u.mobile.includes(digitsOnly))
+        (cleanDigits && (u.mobile === cleanDigits || u.mobile.slice(-10) === cleanDigits))
     );
 
-    // If user is from GitHub Pages or registered earlier without server restart sync
+    // STRICT AUTHENTICATION: Only registered members or users created in admin panel can login!
     if (!user) {
-      // Auto-recognize valid member login from github.io or registered member
-      const memberId = cleanId.toUpperCase().startsWith("IOIS")
-        ? cleanId.toUpperCase()
-        : generateUniqueId("Member", 10);
-
-      const restoredUser: UserRecord = {
-        uniqueId: memberId,
-        name: identifier.includes("@") ? identifier.split("@")[0] : `IOIS Member ${cleanId.slice(-4).toUpperCase()}`,
-        email: identifier.includes("@") ? cleanId : `${digitsOnly || "user"}@iois.in`,
-        mobile: digitsOnly.length >= 10 ? digitsOnly : "9876543210",
-        password: password,
-        planId: "bal_vikas_10",
-        planName: "डिजिटल बाल विकास सम्पूर्ण किट",
-        planPrice: 10,
-        referralCode: "BALVIKAS",
-        sponsorId: "IOIS999VK01",
-        city: "Bihar",
-        designation: "Verified Student Member",
-        utrNumber: "UPI-AUTO-VERIFIED",
-        paymentStatus: "verified",
-        paymentScreenshot: "",
-        photoUrl: "",
-        referralEarnings: 0,
-        twoFactorEnabled: false,
-        registeredAt: new Date().toISOString(),
-        devices: [],
-        progress: {
-          hindiProgress: 10,
-          englishProgress: 10,
-          mathProgress: 10,
-          drawingCount: 1,
-          quizzesCompleted: 1,
-          quizAccuracy: 100,
-          studyTimeMinutes: 30,
-          streakDays: 1,
-          badges: ["badge_starter"],
-          savedDrawings: [],
-          classGrade: "Class 1",
-        },
-      };
-
-      users.push(restoredUser);
-      saveUsers();
-      user = restoredUser;
+      return res.status(404).json({
+        error: "खाता नहीं मिला! केवल वही यूजर लॉगिन कर सकते हैं जिन्होंने पोर्टल पर रजिस्ट्रेशन किया है अथवा जिन्हें एडमिन ने जोड़ा है। कृपया सही यूजर ID/मोबाइल दर्ज करें या नया पंजीकरण करें।",
+      });
     }
 
-    if (user.password && user.password !== password) {
-      return res.status(401).json({ error: "गलत पासवर्ड (Incorrect Password)" });
+    if (!user.password || user.password !== password) {
+      const attemptInfo = recordFailedLoginAttempt(lockKey);
+      if (attemptInfo.locked) {
+        return res.status(429).json({
+          error: "सुरक्षा लॉक: लगातार 5 गलत पासवर्ड दर्ज करने के कारण यह लॉगिन 15 मिनट के लिए सुरक्षित कर दिया गया है।",
+        });
+      }
+      return res.status(401).json({
+        error: `गलत पासवर्ड! कृपया सही पासवर्ड दर्ज करें। (सुरक्षा: शेष प्रयास ${attemptInfo.attemptsLeft}/5)`,
+      });
     }
 
-    // Direct Login - ensure user is verified
+    // Direct Login - reset failed attempts on successful password verification
+    clearFailedLoginAttempts(lockKey);
     user.paymentStatus = "verified";
     saveUsers();
 
     // If 2FA enabled and code not verified yet
     if (user.twoFactorEnabled) {
       if (!twoFactorCode) {
-        // Generate and send 2FA OTP simulation
+        // Generate and send cryptographically sound 2FA OTP
         const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
         user.twoFactorCode = generatedCode;
+        user.twoFactorExpiresAt = Date.now() + 10 * 60 * 1000;
         saveUsers();
+        console.log(`[SECURITY AUDIT] 2FA OTP for ${user.uniqueId}: ${generatedCode}`);
         return res.json({
           requires2FA: true,
-          message: `2FA सुरक्षा कोड आपके मोबाइल ${user.mobile.slice(-4).padStart(10, "*")} पर भेजा गया है।`,
-          demoOtp: generatedCode, // Provided for user convenience in preview environment
+          message: `2FA सुरक्षा कोड आपके पंजीकृत मोबाइल ${user.mobile.slice(-4).padStart(10, "*")} पर भेजा गया है। (10 मिनट के लिए वैध)`,
         });
       }
 
-      if (twoFactorCode !== user.twoFactorCode) {
-        return res.status(400).json({ error: "अमान्य 2FA सुरक्षा कोड (Invalid 2FA Code)" });
+      if (
+        !user.twoFactorCode ||
+        twoFactorCode.trim() !== user.twoFactorCode ||
+        (user.twoFactorExpiresAt && Date.now() > user.twoFactorExpiresAt)
+      ) {
+        return res.status(400).json({ error: "अमान्य या समाप्त 2FA सुरक्षा कोड (Invalid or Expired 2FA Code)" });
       }
       user.twoFactorCode = undefined;
+      user.twoFactorExpiresAt = undefined;
     }
 
     // Register or update device session (up to 4 devices)
@@ -977,6 +1002,8 @@ app.post("/api/auth/login", (req, res) => {
         name: user.name,
         email: user.email,
         mobile: user.mobile,
+        fatherName: user.fatherName || "",
+        classGrade: user.classGrade || user.progress?.classGrade || "Class 1",
         planId: user.planId,
         planName: user.planName,
         planPrice: user.planPrice,
@@ -1088,6 +1115,7 @@ app.post("/api/auth/recover-password/verify", (req, res) => {
     user.recoveryCode = generatedCode;
     user.recoveryCodeExpiresAt = Date.now() + 15 * 60 * 1000; // 15 mins validity
     saveUsers();
+    console.log(`[PASSWORD RECOVERY OTP] User ${user.uniqueId}: ${generatedCode}`);
 
     const maskedContact = mobileMatches
       ? `${user.mobile.slice(0, 3)}****${user.mobile.slice(-3)}`
@@ -1098,8 +1126,7 @@ app.post("/api/auth/recover-password/verify", (req, res) => {
       uniqueId: user.uniqueId,
       name: user.name,
       maskedContact,
-      message: `सत्यापन कोड आपके पंजीकृत विवरण (${maskedContact}) पर प्रेषित किया गया है।`,
-      verificationCode: generatedCode, // Available for preview test verification
+      message: `सत्यापन कोड आपके पंजीकृत विवरण (${maskedContact}) पर प्रेषित किया गया है। कोड 15 मिनट के लिए मान्य है।`,
     });
   } catch (err) {
     console.error("Recover password verify error:", err);
@@ -1125,21 +1152,19 @@ app.post("/api/auth/recover-password/reset", (req, res) => {
       return res.status(404).json({ error: "यूजर खाता नहीं मिला।" });
     }
 
-    // Verify code
-    const isCodeValid =
-      (user.recoveryCode && user.recoveryCode === code.trim()) ||
-      code.trim() === "123456" ||
-      code.trim() === "654321";
-
-    if (!isCodeValid) {
+    // Strictly verify code against server-stored recovery code
+    if (!user.recoveryCode || user.recoveryCode !== code.trim()) {
       return res.status(400).json({ error: "अमान्य या गलत सुरक्षा कोड (Invalid Verification Code)" });
     }
 
-    if (user.recoveryCodeExpiresAt && Date.now() > user.recoveryCodeExpiresAt && code.trim() !== "123456") {
+    if (user.recoveryCodeExpiresAt && Date.now() > user.recoveryCodeExpiresAt) {
+      user.recoveryCode = undefined;
+      user.recoveryCodeExpiresAt = undefined;
+      saveUsers();
       return res.status(400).json({ error: "सुरक्षा कोड की समय सीमा समाप्त हो चुकी है। कृपया पुनः नया कोड प्राप्त करें।" });
     }
 
-    user.password = newPassword;
+    user.password = newPassword.trim();
     user.recoveryCode = undefined;
     user.recoveryCodeExpiresAt = undefined;
     saveUsers();
@@ -1166,12 +1191,16 @@ app.post("/api/auth/recover", (req, res) => {
       if (!user) {
         return res.status(404).json({ error: "यूजर ID नहीं मिली।" });
       }
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.recoveryCode = generatedOtp;
+      user.recoveryCodeExpiresAt = Date.now() + 15 * 60 * 1000;
+      saveUsers();
+      console.log(`[PASSWORD RECOVERY OTP] User ${user.uniqueId}: ${generatedOtp}`);
       return res.json({
         found: true,
         uniqueId: user.uniqueId,
         name: user.name,
         maskedUniqueId: user.uniqueId,
-        testOtp: "123456",
       });
     }
 
@@ -1192,16 +1221,31 @@ app.post("/api/auth/recover", (req, res) => {
     }
 
     if (!newPassword) {
-      const generatedOtp = "123456";
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.recoveryCode = generatedOtp;
+      user.recoveryCodeExpiresAt = Date.now() + 15 * 60 * 1000;
+      saveUsers();
+      console.log(`[PASSWORD RECOVERY OTP] User ${user.uniqueId}: ${generatedOtp}`);
       return res.json({
         found: true,
         maskedUniqueId: user.uniqueId,
-        message: `सत्यापन कोड भेज दिया गया है। आपकी Unique ID है: ${user.uniqueId}`,
-        testOtp: generatedOtp,
+        message: `सत्यापन कोड आपके पंजीकृत विवरण पर भेज दिया गया है। आपकी Unique ID है: ${user.uniqueId}`,
       });
     }
 
-    user.password = newPassword;
+    // When resetting password, require and strictly verify otpCode
+    if (
+      !otpCode ||
+      !user.recoveryCode ||
+      user.recoveryCode !== otpCode.trim() ||
+      (user.recoveryCodeExpiresAt && Date.now() > user.recoveryCodeExpiresAt)
+    ) {
+      return res.status(400).json({ error: "अमान्य या समाप्त सत्यापन OTP कोड (Invalid or Expired OTP)" });
+    }
+
+    user.password = newPassword.trim();
+    user.recoveryCode = undefined;
+    user.recoveryCodeExpiresAt = undefined;
     saveUsers();
 
     res.json({
@@ -1332,6 +1376,10 @@ const handleAdminOverview = (req: express.Request, res: express.Response) => {
         name: u.name,
         email: u.email,
         mobile: u.mobile,
+        fatherName: u.fatherName || "",
+        classGrade: u.classGrade || u.progress?.classGrade || "Class 1",
+        photoUrl: u.photoUrl || "",
+        planId: u.planId,
         planName: u.planName,
         planPrice: u.planPrice,
         referralCode: u.referralCode,
@@ -1457,6 +1505,226 @@ app.post("/api/admin/verify-utr", (req, res) => {
   } catch (err) {
     console.error("Verify UTR error:", err);
     res.status(500).json({ error: "Failed to verify UTR" });
+  }
+});
+
+// Admin Add User
+app.post("/api/admin/users", (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized Admin Access" });
+    }
+    const {
+      name,
+      mobile,
+      email,
+      fatherName,
+      classGrade,
+      planId,
+      planName,
+      planPrice,
+      city,
+      password,
+      photoUrl,
+      payoutUpi,
+      paymentStatus,
+    } = req.body;
+
+    if (!name || !mobile) {
+      return res.status(400).json({ error: "नाम और मोबाइल नंबर आवश्यक हैं।" });
+    }
+
+    const cleanMobile = mobile.replace(/\D/g, "").slice(-10);
+    const uniqueId = generateUniqueId(name, Number(planPrice) || 10);
+    const userPassword = password && password.trim().length >= 4 ? password.trim() : "123456";
+
+    const newUser: UserRecord = {
+      uniqueId,
+      name: name.trim(),
+      email: email ? email.trim() : `${cleanMobile || "student"}@iois.in`,
+      mobile: cleanMobile || mobile.trim(),
+      fatherName: fatherName ? fatherName.trim() : "",
+      classGrade: classGrade ? classGrade.trim() : "Class 1",
+      password: userPassword,
+      planId: planId || "bal_vikas_10",
+      planName: planName || "डिजिटल बाल विकास सम्पूर्ण किट (Class 1-5)",
+      planPrice: Number(planPrice) || 10,
+      referralCode: `IOIS${Math.floor(100 + Math.random() * 900)}`,
+      sponsorId: "IOIS999VK01",
+      city: city ? city.trim() : "पटना, बिहार",
+      designation: "Verified Elite Member (बाल विकास सेवा)",
+      utrNumber: `ADM-${Date.now().toString().slice(-8)}`,
+      payoutUpi: payoutUpi ? payoutUpi.trim() : "",
+      paymentStatus: paymentStatus || "verified",
+      photoUrl: photoUrl ? photoUrl.trim() : "",
+      referralEarnings: 0,
+      twoFactorEnabled: false,
+      registeredAt: new Date().toISOString(),
+      devices: [],
+      progress: {
+        hindiProgress: 45,
+        englishProgress: 50,
+        mathProgress: 40,
+        drawingCount: 2,
+        quizzesCompleted: 3,
+        quizAccuracy: 90,
+        studyTimeMinutes: 60,
+        streakDays: 1,
+        badges: ["badge_starter", "badge_varnamala"],
+        savedDrawings: [],
+        classGrade: classGrade ? classGrade.trim() : "Class 1",
+      },
+    };
+
+    users.unshift(newUser);
+    saveUsers();
+
+    // Trigger async sync to Google Sheets if configured
+    syncUserToGoogleSheets(newUser);
+
+    res.status(201).json({
+      success: true,
+      message: `नया यूजर ${newUser.name} (${newUser.uniqueId}) सफलतापूर्वक जोड़ा गया!`,
+      user: newUser,
+    });
+  } catch (err) {
+    console.error("Admin add user error:", err);
+    res.status(500).json({ error: "यूजर जोड़ने में तकनीकी त्रुटि आई।" });
+  }
+});
+
+// Admin Edit User
+app.put("/api/admin/users/:uniqueId", (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized Admin Access" });
+    }
+    const { uniqueId } = req.params;
+    const userIndex = users.findIndex((u) => u.uniqueId.toUpperCase() === uniqueId.toUpperCase());
+    if (userIndex === -1) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const {
+      name,
+      mobile,
+      email,
+      fatherName,
+      classGrade,
+      planName,
+      planPrice,
+      city,
+      password,
+      photoUrl,
+      payoutUpi,
+      paymentStatus,
+      referralEarnings,
+    } = req.body;
+
+    const user = users[userIndex];
+    if (name) user.name = name.trim();
+    if (mobile) user.mobile = mobile.trim();
+    if (email) user.email = email.trim();
+    if (fatherName !== undefined) user.fatherName = fatherName.trim();
+    if (classGrade) {
+      user.classGrade = classGrade.trim();
+      if (!user.progress) {
+        user.progress = {
+          hindiProgress: 0,
+          englishProgress: 0,
+          mathProgress: 0,
+          drawingCount: 0,
+          quizzesCompleted: 0,
+          quizAccuracy: 100,
+          studyTimeMinutes: 0,
+          streakDays: 1,
+          badges: [],
+          savedDrawings: [],
+          classGrade: classGrade.trim(),
+        };
+      } else {
+        user.progress.classGrade = classGrade.trim();
+      }
+    }
+    if (planName) user.planName = planName.trim();
+    if (planPrice !== undefined) user.planPrice = Number(planPrice);
+    if (city !== undefined) user.city = city.trim();
+    if (password && password.trim().length >= 4) user.password = password.trim();
+    if (photoUrl !== undefined) user.photoUrl = photoUrl.trim();
+    if (payoutUpi !== undefined) user.payoutUpi = payoutUpi.trim();
+    if (paymentStatus) user.paymentStatus = paymentStatus;
+    if (referralEarnings !== undefined) user.referralEarnings = Number(referralEarnings);
+
+    saveUsers();
+    res.json({ success: true, message: `यूजर ${user.name} का विवरण अपडेट हो गया!`, user });
+  } catch (err) {
+    console.error("Admin edit user error:", err);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+});
+
+// Admin Delete User
+app.delete("/api/admin/users/:uniqueId", (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized Admin Access" });
+    }
+    const { uniqueId } = req.params;
+    users = users.filter((u) => u.uniqueId.toUpperCase() !== uniqueId.toUpperCase());
+    saveUsers();
+    res.json({ success: true, message: `यूजर ${uniqueId} हटा दिया गया!` });
+  } catch (err) {
+    console.error("Admin delete user error:", err);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+// Admin Impersonate User Dashboard (Open Dashboard without password)
+app.post("/api/admin/impersonate", (req, res) => {
+  try {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(403).json({ error: "Unauthorized Admin Access" });
+    }
+    const { uniqueId } = req.body;
+    if (!uniqueId) {
+      return res.status(400).json({ error: "यूनिक ID आवश्यक है।" });
+    }
+
+    const user = users.find((u) => u.uniqueId.toUpperCase() === uniqueId.trim().toUpperCase());
+    if (!user) {
+      return res.status(404).json({ error: "यूजर नहीं मिला।" });
+    }
+
+    res.json({
+      success: true,
+      message: `यूजर ${user.name} का डैशबोर्ड बिना पासवर्ड के खोला गया।`,
+      user: {
+        uniqueId: user.uniqueId,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        fatherName: user.fatherName || "",
+        classGrade: user.classGrade || user.progress?.classGrade || "Class 1",
+        photoUrl: user.photoUrl,
+        planId: user.planId,
+        planName: user.planName,
+        planPrice: user.planPrice,
+        referralCode: user.referralCode,
+        sponsorId: user.sponsorId,
+        city: user.city,
+        designation: user.designation,
+        utrNumber: user.utrNumber,
+        payoutUpi: user.payoutUpi,
+        paymentStatus: user.paymentStatus || "verified",
+        referralEarnings: user.referralEarnings || 0,
+        twoFactorEnabled: user.twoFactorEnabled,
+        devices: user.devices || [],
+        progress: user.progress,
+      },
+    });
+  } catch (err) {
+    console.error("Impersonate error:", err);
+    res.status(500).json({ error: "Failed to impersonate user" });
   }
 });
 

@@ -22,6 +22,7 @@ import { AdminPanel } from "./components/AdminPanel";
 import { TutorialModal } from "./components/TutorialModal";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { UnauthenticatedPortal } from "./components/UnauthenticatedPortal";
+import { UserDashboard } from "./components/UserDashboard";
 import { UserProfile, StudentProgress, DrawingItem } from "./types";
 import { DIGITAL_BADGES } from "./data/learningData";
 import { playAudioText } from "./utils/speech";
@@ -350,15 +351,39 @@ export default function App() {
       {/* Main View Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         {activeTab === "dashboard" && (
-          <Dashboard
+          user ? (
+            <UserDashboard
+              user={user}
+              progress={progress}
+              language={language}
+              soundEnabled={soundEnabled}
+              onNavigateToTab={(tab) => setActiveTab(tab)}
+              onLogout={handleLogout}
+              onUpdateUser={(updated) => setUser(updated)}
+            />
+          ) : (
+            <Dashboard
+              user={user}
+              progress={progress}
+              selectedGrade={selectedGrade}
+              language={language}
+              soundEnabled={soundEnabled}
+              onNavigate={(tab) => setActiveTab(tab)}
+              onOpenAuth={() => openAuth("login")}
+              onOpenDevices={() => setIsDevicesOpen(true)}
+            />
+          )
+        )}
+
+        {activeTab === "id_card" && user && (
+          <UserDashboard
             user={user}
             progress={progress}
-            selectedGrade={selectedGrade}
             language={language}
             soundEnabled={soundEnabled}
-            onNavigate={(tab) => setActiveTab(tab)}
-            onOpenAuth={() => openAuth("login")}
-            onOpenDevices={() => setIsDevicesOpen(true)}
+            onNavigateToTab={(tab) => setActiveTab(tab)}
+            onLogout={handleLogout}
+            onUpdateUser={(updated) => setUser(updated)}
           />
         )}
 

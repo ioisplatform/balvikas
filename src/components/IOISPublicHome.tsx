@@ -42,12 +42,12 @@ export const IOISPublicHome: React.FC<IOISPublicHomeProps> = ({
           </div>
 
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-            सम्पूर्ण डिजिटल बाल विकास व शिक्षा पोर्टल
+            IOIS बाल विकास: सम्पूर्ण डिजिटल शिक्षा पोर्टल
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium">
             बच्चों के सर्वांगीण मानसिक व बौद्धिक विकास के लिए समर्पित आधुनिक डिजिटल प्लेटफॉर्म। 
-            यहाँ बच्चे सचित्र डिजिटल बाल विकास पुस्तक (वर्णमाला व चित्रावली), चिंटू कार्टून AI शिक्षक, 
+            यहाँ बच्चे सचित्र डिजिटल बाल विकास पुस्तक (वर्णमाला व चित्रावली), बाल गुरु कार्टून AI शिक्षक, 
             3D मानव शरीर अंग, पेंसिल ट्रेसिंग व ड्रॉइंग कैनवास, गणित (1 से 100 तक गिनती व जोड़-घटाव), 
             अंग्रेजी Alphabet व फ़ोनिक्स और आकर्षक क्विज़ व रिपोर्ट कार्ड के माध्यम से आनंदपूर्वक सीखते हैं।
           </p>
@@ -77,7 +77,7 @@ export const IOISPublicHome: React.FC<IOISPublicHomeProps> = ({
               className="px-4 py-3 bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 font-bold text-xs rounded-2xl border border-blue-500/40 flex items-center gap-1.5 transition-colors"
             >
               <Bot className="w-4 h-4 text-amber-400" />
-              <span>चिंटू AI शिक्षक से बात करें</span>
+              <span>बाल गुरु AI शिक्षक से बात करें</span>
             </button>
           </div>
 
@@ -89,7 +89,7 @@ export const IOISPublicHome: React.FC<IOISPublicHomeProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>चिंटू कार्टून AI एनिमेटेड गाइड</span>
+              <span>बाल गुरु कार्टून AI एनिमेटेड गाइड</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -123,7 +123,7 @@ export const IOISPublicHome: React.FC<IOISPublicHomeProps> = ({
               badge: "वर्णमाला व चित्रावली",
             },
             {
-              title: "2. चिंटू AI शिक्षक",
+              title: "2. बाल गुरु AI शिक्षक",
               desc: "बोलने व समझाने वाला कार्टून शिक्षक जो हर कदम पर बच्चों को प्रेरित करता है।",
               icon: <Bot className="w-6 h-6 text-blue-500" />,
               color: "bg-blue-500/10 border-blue-500/30",
@@ -197,7 +197,7 @@ export const IOISPublicHome: React.FC<IOISPublicHomeProps> = ({
             आज ही अपने बच्चे की डिजिटल पढ़ाई शुरू करें!
           </h3>
           <p className="text-xs sm:text-sm font-semibold text-slate-900/80 max-w-xl">
-            पंजीकरण करके अपनी डिजिटल सदस्य आईडी प्राप्त करें और सम्पूर्ण बाल विकास किट व चिंटू AI शिक्षक को अनलॉक करें।
+            पंजीकरण करके अपनी डिजिटल सदस्य आईडी प्राप्त करें और सम्पूर्ण बाल विकास किट व बाल गुरु AI शिक्षक को अनलॉक करें।
           </p>
         </div>
 

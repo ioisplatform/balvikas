@@ -63,29 +63,34 @@ export async function syncUserToCloudAndLocal(user: UserProfile): Promise<void> 
 
 /**
  * Searches for a user across LocalStorage and Firestore
- * Matches by uniqueId (e.g. IOIS10RK01, IOIS10AS02), mobile number, or email
+ * Matches by uniqueId (e.g. IOIS10RK01, IOIS10AS02), mobile number, or email.
+ * STRICT SECURITY: Password is strictly required and must match the registered user record.
  */
 export async function findUserInCloudOrLocal(
   identifier: string,
-  password?: string
+  password: string
 ): Promise<UserProfile | null> {
+  if (!identifier || !password || typeof password !== "string" || password.trim().length === 0) {
+    return null;
+  }
+
   const clean = identifier.trim().toLowerCase();
   const digitsOnly = identifier.replace(/\D/g, "");
+  const cleanDigits = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : "";
 
   // 1. Check current logged in user in LocalStorage
   try {
     const currentStr = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
     if (currentStr) {
       const u = JSON.parse(currentStr) as UserProfile;
-      if (
+      const isMatch =
         u.uniqueId?.toLowerCase() === clean ||
         u.email?.toLowerCase() === clean ||
         u.mobile === clean ||
-        (digitsOnly && u.mobile?.includes(digitsOnly))
-      ) {
-        if (!password || !u.password || u.password === password) {
-          return { ...u, paymentStatus: "verified" };
-        }
+        (cleanDigits && (u.mobile === cleanDigits || u.mobile?.slice(-10) === cleanDigits));
+
+      if (isMatch && u.password && u.password === password) {
+        return { ...u, paymentStatus: "verified" };
       }
     }
   } catch {}
@@ -100,12 +105,10 @@ export async function findUserInCloudOrLocal(
           m.uniqueId?.toLowerCase() === clean ||
           m.email?.toLowerCase() === clean ||
           m.mobile === clean ||
-          (digitsOnly.length >= 10 && m.mobile?.includes(digitsOnly))
+          (cleanDigits && (m.mobile === cleanDigits || m.mobile?.slice(-10) === cleanDigits))
         );
-        if (found) {
-          if (!password || !found.password || found.password === password) {
-            return { ...found, paymentStatus: "verified" };
-          }
+        if (found && found.password && found.password === password) {
+          return { ...found, paymentStatus: "verified" };
         }
       }
     }
@@ -119,17 +122,23 @@ export async function findUserInCloudOrLocal(
         const docSnap = await getDoc(doc(db, "users", identifier.toUpperCase()));
         if (docSnap.exists()) {
           const d = docSnap.data() as UserProfile;
-          return { ...d, paymentStatus: "verified" };
+          if (d.password && d.password === password) {
+            return { ...d, paymentStatus: "verified" };
+          }
+          return null;
         }
       }
 
       // Query by mobile
-      if (digitsOnly.length >= 10) {
-        const qMobile = query(collection(db, "users"), where("mobile", "==", digitsOnly));
+      if (cleanDigits.length >= 10) {
+        const qMobile = query(collection(db, "users"), where("mobile", "==", cleanDigits));
         const snapMobile = await getDocs(qMobile);
         if (!snapMobile.empty) {
           const d = snapMobile.docs[0].data() as UserProfile;
-          return { ...d, paymentStatus: "verified" };
+          if (d.password && d.password === password) {
+            return { ...d, paymentStatus: "verified" };
+          }
+          return null;
         }
       }
 
@@ -139,7 +148,10 @@ export async function findUserInCloudOrLocal(
         const snapEmail = await getDocs(qEmail);
         if (!snapEmail.empty) {
           const d = snapEmail.docs[0].data() as UserProfile;
-          return { ...d, paymentStatus: "verified" };
+          if (d.password && d.password === password) {
+            return { ...d, paymentStatus: "verified" };
+          }
+          return null;
         }
       }
     }
@@ -153,7 +165,7 @@ export async function findUserInCloudOrLocal(
     clean === "9876543210" ||
     clean === "rahul@iois.in"
   ) {
-    if (!password || password === "Password@123") {
+    if (password === "Password@123") {
       return {
         uniqueId: "IOIS10RK01",
         name: "Rahul Kumar",

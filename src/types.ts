@@ -50,6 +50,8 @@ export interface UserProfile {
   planName: string;
   planPrice: number;
   classGrade?: string;
+  fatherName?: string;
+  guardianName?: string;
   referralCode?: string;
   sponsorId?: string;
   city?: string;

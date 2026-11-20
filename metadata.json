@@ -1,5 +1,5 @@
 {
-  "name": "IOIS Bal Vikas - Kids Learning Platform",
+  "name": "IOIS बाल विकास",
   "description": "सम्पूर्ण डिजिटल बाल विकास व प्रारंभिक शिक्षा मंच • डिजिटल पुस्तक, चिंटू AI शिक्षक, 3D मानव शरीर रचना, पेंसिल ट्रेसिंग, गणित, अंग्रेजी व क्विज़।",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

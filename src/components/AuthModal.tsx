@@ -177,21 +177,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           const data = await res.json();
           if (data.requires2FA) {
             setRequires2FA(true);
-            setTwoFactorHint(data.message + (data.demoOtp ? ` (Demo Code: ${data.demoOtp})` : ""));
+            setTwoFactorHint(data.message || "कृपया आपके पंजीकृत मोबाइल पर भेजा गया 2FA सत्यापन कोड दर्ज करें।");
             setSuccessMessage("कृपया आपके मोबाइल पर भेजा गया 2FA कोड दर्ज करें।");
             setLoading(false);
             return;
           }
           loggedInUser = data.user;
-        } else if (res.status === 400 || res.status === 401 || res.status === 403) {
-          const errData = await res.json();
+        } else if (res.status === 400 || res.status === 401 || res.status === 403 || res.status === 404 || res.status === 429) {
+          const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error || "लॉगिन विफल (गलत आईडी या पासवर्ड)");
         } else {
           isBackendAvailable = false;
         }
       } catch (fetchErr: unknown) {
         const msg = fetchErr instanceof Error ? fetchErr.message : "";
-        if (msg.includes("लॉगिन विफल") || msg.includes("गलत आईडी")) {
+        if (msg.includes("लॉगिन विफल") || msg.includes("गलत") || msg.includes("खाता नहीं मिला") || msg.includes("अमान्य") || msg.includes("सुरक्षा लॉक")) {
           throw fetchErr;
         }
         isBackendAvailable = false;
@@ -202,51 +202,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         const found = await findUserInCloudOrLocal(loginIdentifier.trim(), loginPassword);
         if (found) {
           loggedInUser = found;
-        }
-
-        const savedUserStr = localStorage.getItem("iois_user");
-        if (!loggedInUser && savedUserStr) {
-          try {
-            const parsed = JSON.parse(savedUserStr);
-            if (parsed.uniqueId === loginIdentifier || parsed.mobile === loginIdentifier || parsed.email === loginIdentifier) {
-              loggedInUser = parsed;
-            }
-          } catch {
-            // ignore
-          }
-        }
-
-        if (!loggedInUser) {
-          const fallbackId = loginIdentifier.toUpperCase().startsWith("IOIS") 
-            ? loginIdentifier.toUpperCase() 
-            : `IOIS10${loginIdentifier.slice(-4).toUpperCase() || "ST01"}`;
-
-          loggedInUser = {
-            uniqueId: fallbackId,
-            name: loginIdentifier.includes("@") ? loginIdentifier.split("@")[0] : "IOIS Member",
-            email: loginIdentifier.includes("@") ? loginIdentifier : "member@iois.in",
-            mobile: loginIdentifier.length === 10 ? loginIdentifier : "9876543210",
-            planId: "bal_vikas_10",
-            planName: "बाल विकास बेसिक (Class 1-5)",
-            planPrice: 10,
-            referralCode: "IOISVIP",
-            classGrade: "Class 1",
-            sponsorId: "IOIS999VK01",
-            city: "Bihar",
-            designation: "Verified Member",
-            paymentStatus: "verified",
-            referralEarnings: 0,
-            twoFactorEnabled: false,
-            devices: [{
-              id: "dev_github_1",
-              deviceName: navigator.userAgent.includes("Mobile") ? "Mobile Phone" : "Laptop/PC",
-              browser: "Web Browser",
-              ip: "GitHub Pages Client",
-              lastActive: new Date().toISOString(),
-              isCurrent: true,
-            }],
-            progress: createFallbackProgress(fallbackId),
-          };
         }
       }
 
@@ -263,7 +218,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           onClose();
         }, 500);
       } else {
-        throw new Error("लॉगिन विफल (खाता नहीं मिला)");
+        throw new Error("लॉगिन विफल! अमान्य यूजर आईडी या गलत पासवर्ड। कृपया सही जानकारी दर्ज करें या नया पंजीकरण करें।");
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "लॉगिन विफल";
@@ -409,7 +364,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         setRecoveredId(data.maskedUniqueId);
         setOtpSent(true);
-        setSuccessMessage(`सत्यापन कोड भेजा गया! आपकी Unique ID है: ${data.maskedUniqueId} (Demo OTP: ${data.testOtp})`);
+        setSuccessMessage(`सत्यापन कोड भेजा गया! आपकी Unique ID है: ${data.maskedUniqueId}। कृपया प्राप्त 6-अंकों का OTP कोड दर्ज करें।`);
       } else {
         const res = await fetch("/api/auth/recover", {
           method: "POST",
@@ -1017,14 +972,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      सत्यापन OTP कोड (Demo: 123456)
+                      सत्यापन 6-अंकों का OTP कोड
                     </label>
                     <input
                       type="text"
                       required
                       value={forgotOtp}
                       onChange={(e) => setForgotOtp(e.target.value)}
-                      placeholder="123456"
+                      placeholder="दर्ज करें: 6-अंकों का कोड"
                       className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 font-mono tracking-widest text-center font-bold"
                     />
                   </div>

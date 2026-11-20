@@ -256,8 +256,7 @@ export const RegistrationSection: React.FC<RegistrationSectionProps> = ({
 
       // If backend was 404 / static host (e.g. GitHub Pages) or offline:
       if (!createdUser) {
-        const initials = fullName.trim().replace(/[^a-zA-Z]/g, "").slice(0, 2).toUpperCase() || "ST";
-        const candidateUniqueId = `IOIS10${initials}${Math.floor(10 + Math.random() * 90)}`;
+        const candidateUniqueId = estimatedUserId;
         createdUser = {
           uniqueId: candidateUniqueId,
           name: fullName.trim(),
@@ -345,7 +344,7 @@ export const RegistrationSection: React.FC<RegistrationSectionProps> = ({
             </h1>
 
             <p className="text-amber-100 text-xs sm:text-sm font-medium leading-relaxed">
-              डिजिटल बाल विकास पुस्तक, चिंटू AI शिक्षक, 3D मानव शरीर अंग, ड्रॉइंग कैनवास, गणित व अंग्रेजी फ़ोनिक्स किट का सम्पूर्ण एक्सेस प्राप्त करें।
+              डिजिटल बाल विकास पुस्तक, बाल गुरु AI शिक्षक, 3D मानव शरीर अंग, ड्रॉइंग कैनवास, गणित व अंग्रेजी फ़ोनिक्स किट का सम्पूर्ण एक्सेस प्राप्त करें।
             </p>
           </div>
 
